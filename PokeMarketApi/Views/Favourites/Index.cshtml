@@ -1,0 +1,17 @@
+@model IEnumerable<PokeMarketApi.Models.FavouriteItem>
+@{ ViewData["Title"] = "Favourites"; }
+<p class="eyebrow">SAVED FOR LATER</p><h1>Your favourites</h1>
+<div class="grid">
+@foreach (var item in Model)
+{
+    <article class="product">
+        <a href="/Products/Details/@item.CatalogCardId"><img src="@(item.ImageUrl ?? "https://placehold.co/240x330")" alt="@item.ProductName"><b>@item.ProductName</b></a>
+        <small>@item.SetName</small><strong data-qar="@item.PriceQar">QAR @item.PriceQar.ToString("N2")</strong>
+        <form method="post" action="/Favourites/Toggle">@Html.AntiForgeryToken()
+            <input type="hidden" name="catalogCardId" value="@item.CatalogCardId"><input type="hidden" name="productName" value="@item.ProductName"><input type="hidden" name="imageUrl" value="@item.ImageUrl"><input type="hidden" name="setName" value="@item.SetName"><input type="hidden" name="priceQar" value="@item.PriceQar">
+            <button class="linkbtn">Remove favourite</button>
+        </form>
+    </article>
+}
+</div>
+@if (!Model.Any()) { <p class="notice">No favourites saved yet. <a href="/Search">Browse the catalogue</a> and save products you like.</p> }
