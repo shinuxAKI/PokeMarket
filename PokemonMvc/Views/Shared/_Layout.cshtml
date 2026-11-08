@@ -26,5 +26,6 @@ document.querySelectorAll('form.catalogue-filters').forEach(form => form.addEven
     if (button) { button.disabled = true; button.textContent = 'Loading...'; }
 }));
 </script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
