@@ -1,5 +1,5 @@
 @model IEnumerable<Card>
-@{ ViewData["Title"] = "Dashboard"; }
+@{ ViewData["Title"] = "Pokémon catalogue"; }
 <section class="hero">
     <h1>Pokémon catalogue</h1>
     <p>Browse Pokémon cards, booster packs and Trainer Boxes.</p>
@@ -8,12 +8,13 @@
         <a class="btn" href="/Cards">Manage catalogue</a>
         <a class="btn" href="/Cards/Create">＋ Add product</a>
     }
-    else
-    {
-        <a class="btn" href="/Identity/Account/Login">Sign in</a>
-    }
 </section>
-<h2>Featured products</h2>
+<div class="catalogue-heading">
+    <div>
+        <h2>All products</h2>
+        <p>@Model.Count() products in the catalogue</p>
+    </div>
+</div>
 <div class="grid">
 @foreach (var c in Model)
 {
