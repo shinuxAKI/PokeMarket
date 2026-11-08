@@ -1,2 +1,17 @@
 @model IEnumerable<CatalogCard>
-@{ViewData["Title"]="Search";}<h1>Discover Pokémon</h1><form class="filters" method="get"><input name="q" placeholder="Search card name or number"><select name="setName"><option value="">All sets</option>@foreach(string s in ViewBag.Sets){<option value="@s">@s</option>}</select><select name="language"><option value="">All languages</option><option>English</option><option>Japanese</option></select><button class="btn">Filter</button></form><div class="grid">@foreach(var c in Model){<a class="product" href="/Products/Details/@c.Id"><img src="@(c.ImageUrl??"https://placehold.co/240x330")"><b>@c.Name</b><small>@c.CardNumber · @c.SetName</small><strong>QAR @c.MarketPriceQar</strong></a>}</div>
+@{ ViewData["Title"] = "Search"; }
+<p class="eyebrow">CARD DATABASE</p><h1>Discover Pokémon</h1>
+<form class="filters" method="get">
+    <input name="q" value="@Context.Request.Query["q"]" placeholder="Search card name or number">
+    <select name="setName"><option value="">All sets</option>@foreach (string s in ViewBag.Sets) { <option value="@s" selected="@(Context.Request.Query["setName"] == s)">@s</option> }</select>
+    <select name="language"><option value="">All languages</option><option selected="@(Context.Request.Query["language"] == "English")">English</option><option selected="@(Context.Request.Query["language"] == "Japanese")">Japanese</option></select>
+    <button class="btn">Search</button>
+</form>
+@if (ViewBag.Offline == true) { <p class="notice">The catalogue API is offline. Start PokemonMvc and check the API address in PokeMarketApi/appsettings.json.</p> }
+<div class="grid">
+@foreach (var c in Model)
+{
+    <a class="product" href="/Products/Details/@c.Id"><img src="@(c.ImageUrl ?? "https://placehold.co/240x330?text=Pok%C3%A9mon")" alt="@c.Name"><b>@c.Name</b><small>@c.CardNumber · @c.SetName · @c.Language</small><strong data-qar="@c.MarketPriceQar">QAR @c.MarketPriceQar.ToString("N2")</strong></a>
+}
+</div>
+@if (!Model.Any() && ViewBag.Offline != true) { <p class="notice">No cards matched your search. Try another name, set or language.</p> }
