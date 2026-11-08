@@ -1,2 +1,19 @@
 @model IEnumerable<SellerListing>
-@{ViewData["Title"]="Seller marketplace";}<h1>Seller marketplace</h1><p>Demo listings only. No checkout or payment is processed.</p><form class="sellform" method="post" action="/Sell/Create"><h2>Create listing</h2><input name="productName" required placeholder="Product name"><select name="productType"><option>Card</option><option>Booster Pack</option><option>Trainer Box</option></select><input name="imageUrl" placeholder="Image URL"><select name="grade"><option>Ungraded</option>@for(int i=1;i<=10;i++){<option>PSA @i</option>}</select><input name="priceQar" type="number" min="0.01" step="0.01" required placeholder="Price QAR"><button class="btn">Publish listing</button></form><div class="grid">@foreach(var x in Model){<article class="product"><img src="@(x.ImageUrl??"https://placehold.co/240x330")"><b>@x.ProductName</b><small>@x.ProductType · @x.Grade</small><strong>QAR @x.PriceQar</strong></article>}</div>
+@{ ViewData["Title"] = "Seller marketplace"; }
+<p class="eyebrow">COMMUNITY MARKETPLACE</p><h1>Seller marketplace</h1><p>Publish a listing for other collectors to discover. This is a demo marketplace; no checkout or payment is processed.</p>
+<form class="sellform" method="post" action="/Sell/Create">
+    @Html.AntiForgeryToken()
+    <h2>Create a listing</h2><input name="productName" required maxlength="120" placeholder="Product name">
+    <select name="productType"><option>Card</option><option>Booster Pack</option><option>Trainer Box</option></select>
+    <input name="imageUrl" type="url" placeholder="Image URL (optional)">
+    <select name="grade"><option>Ungraded</option>@for (int i=1;i<=10;i++) { <option>PSA @i</option> }</select>
+    <input name="priceQar" type="number" min="0.01" max="1000000" step="0.01" required placeholder="Price QAR">
+    <button class="btn">Publish listing</button>
+</form>
+<div class="grid">
+@foreach (var x in Model)
+{
+    <article class="product"><img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b><small>@x.ProductType · @x.Grade</small><strong data-qar="@x.PriceQar">QAR @x.PriceQar.ToString("N2")</strong></article>
+}
+</div>
+@if (!Model.Any()) { <p class="notice">No community listings yet. Be the first to publish one.</p> }
