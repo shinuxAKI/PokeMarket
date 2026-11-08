@@ -10,11 +10,15 @@ namespace PokeMarketApi.Controllers;
 [Authorize]
 public class SellController(MarketContext db, UserManager<IdentityUser> users, IWebHostEnvironment environment) : Controller
 {
-    public async Task<IActionResult> Index() =>
-        View(await db.SellerListings.OrderByDescending(x => x.CreatedAt).ToListAsync());
+    public async Task<IActionResult> Index()
+    {
+        ViewBag.CurrentUserId = users.GetUserId(User);
+        return View(await db.SellerListings.OrderByDescending(x => x.CreatedAt).ToListAsync());
+    }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string productName, string productType, string? imageUrl, string grade, decimal priceQar, IFormFile? photo)
+    public async Task<IActionResult> Create(string productName, string productType, string? imageUrl,
+        string grade, string condition, decimal priceQar, IFormFile? photo)
     {
         productName = (productName ?? "").Trim();
         if (productName.Length == 0 || productName.Length > 120 || priceQar <= 0 || priceQar > 1000000)
@@ -39,14 +43,35 @@ public class SellController(MarketContext db, UserManager<IdentityUser> users, I
         }
         db.SellerListings.Add(new SellerListing
         {
-            SellerId = users.GetUserId(User)!,
-            ProductName = productName,
-            ProductType = productType,
-            ImageUrl = imageUrl,
-            Grade = grade,
-            PriceQar = priceQar
+            SellerId = users.GetUserId(User)!, ProductName = productName, ProductType = productType,
+            ImageUrl = imageUrl, Grade = grade, Condition = condition, PriceQar = priceQar
         });
         await db.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(int id, string productName, string grade, string condition, decimal priceQar, string status)
+    {
+        var listing = await db.SellerListings.FirstOrDefaultAsync(x => x.Id == id && x.SellerId == users.GetUserId(User));
+        if (listing == null) return NotFound();
+        productName = (productName ?? "").Trim();
+        if (productName.Length == 0 || productName.Length > 120 || priceQar <= 0 || priceQar > 1000000)
+            return BadRequest("Enter a valid product name and price.");
+        listing.ProductName = productName;
+        listing.Grade = grade;
+        listing.Condition = condition;
+        listing.PriceQar = priceQar;
+        listing.Status = status == "Sold" ? "Sold" : "Available";
+        await db.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var listing = await db.SellerListings.FirstOrDefaultAsync(x => x.Id == id && x.SellerId == users.GetUserId(User));
+        if (listing != null) { db.SellerListings.Remove(listing); await db.SaveChangesAsync(); }
         return RedirectToAction(nameof(Index));
     }
 }
