@@ -1,19 +1,39 @@
 @model IEnumerable<SellerListing>
-@{ ViewData["Title"] = "Seller marketplace"; }
-<p class="eyebrow">COMMUNITY MARKETPLACE</p><h1>Seller marketplace</h1><p>Publish a listing for other collectors to discover. This is a demo marketplace; no checkout or payment is processed.</p>
+@{ ViewData["Title"] = "Seller marketplace"; var currentUserId = (string?)ViewBag.CurrentUserId; }
+<p class="eyebrow">COMMUNITY MARKETPLACE</p><h1>Seller marketplace</h1><p>Publish and manage your listings. This is a demo marketplace; no checkout or payment is processed.</p>
 <form class="sellform" method="post" action="/Sell/Create" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <h2>Create a listing</h2><input name="productName" required maxlength="120" placeholder="Product name">
     <select name="productType"><option>Card</option><option>Booster Pack</option><option>Trainer Box</option></select>
     <label class="upload-field">Photo upload <input name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><input name="imageUrl" type="url" placeholder="Or paste an HTTPS image URL">
     <select name="grade"><option>Ungraded</option>@for (int i=1;i<=10;i++) { <option>PSA @i</option> }</select>
+    <select name="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option></select>
     <input name="priceQar" type="number" min="0.01" max="1000000" step="0.01" required placeholder="Price QAR">
     <button class="btn">Publish listing</button>
 </form>
+<div class="sectionhead"><div><h2>Community listings</h2><p>Manage your own listings below.</p></div></div>
 <div class="grid">
 @foreach (var x in Model)
 {
-    <article class="product"><img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b><small>@x.ProductType · @x.Grade</small><strong data-qar="@x.PriceQar">QAR @x.PriceQar.ToString("N2")</strong></article>
+    <article class="product">
+        <img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b>
+        <small>@x.ProductType · @x.Grade · @x.Condition</small>
+        <strong data-qar="@x.PriceQar">QAR @x.PriceQar.ToString("N2")</strong>
+        <span class="listing-status @(x.Status == "Sold" ? "sold" : "")">@x.Status</span>
+        @if (x.SellerId == currentUserId)
+        {
+            <form method="post" action="/Sell/Update" class="listing-edit">
+                @Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id">
+                <label>Title <input name="productName" maxlength="120" value="@x.ProductName" required></label>
+                <label>Price QAR <input name="priceQar" type="number" min="0.01" max="1000000" step="0.01" value="@x.PriceQar" required></label>
+                <label>Condition <select name="condition"><option selected="@(x.Condition == "Near Mint")">Near Mint</option><option selected="@(x.Condition == "Lightly Played")">Lightly Played</option><option selected="@(x.Condition == "Moderately Played")">Moderately Played</option><option selected="@(x.Condition == "Heavily Played")">Heavily Played</option><option selected="@(x.Condition == "Damaged")">Damaged</option></select></label>
+                <label>Grade <select name="grade"><option selected="@(x.Grade == "Ungraded")">Ungraded</option>@for (int i=1;i<=10;i++) { <option selected="@(x.Grade == "PSA " + i)">PSA @i</option> }</select></label>
+                <label>Status <select name="status"><option selected="@(x.Status == "Available")">Available</option><option selected="@(x.Status == "Sold")">Sold</option></select></label>
+                <button class="btn">Save listing</button>
+            </form>
+            <form method="post" action="/Sell/Delete" onsubmit="return confirm('Delete this seller listing?')">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"><button class="linkbtn">Delete listing</button></form>
+        }
+    </article>
 }
 </div>
 @if (!Model.Any()) { <p class="notice">No community listings yet. Be the first to publish one.</p> }
