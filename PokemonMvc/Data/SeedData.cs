@@ -27,7 +27,12 @@ public static class SeedData
             new Card { Name="Carmine", CardNumber="217/167", SetName="Twilight Masquerade", Rarity="Special Illustration Rare", MarketPriceQar=155m, ImageUrl="https://images.pokemontcg.io/sv6/217.png" },
             new Card { Name="Pikachu ex", CardNumber="238/191", SetName="Surging Sparks", Rarity="Special Illustration Rare", MarketPriceQar=520m, ImageUrl="https://images.pokemontcg.io/sv8/238.png" },
             new Card { Name="Latias ex", CardNumber="239/191", SetName="Surging Sparks", Rarity="Special Illustration Rare", MarketPriceQar=280m, ImageUrl="https://images.pokemontcg.io/sv8/239.png" },
-            new Card { Name="Hydreigon ex", CardNumber="240/191", SetName="Surging Sparks", Rarity="Special Illustration Rare", MarketPriceQar=135m, ImageUrl="https://images.pokemontcg.io/sv8/240.png" }
+            new Card { Name="Hydreigon ex", CardNumber="240/191", SetName="Surging Sparks", Rarity="Special Illustration Rare", MarketPriceQar=135m, ImageUrl="https://images.pokemontcg.io/sv8/240.png" },
+            new Card { Name="Scarlet & Violet Booster Pack", CardNumber="PACK-SV1", SetName="Scarlet & Violet", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=22m, ImageUrl="https://placehold.co/360x480?text=SV+Booster+Pack" },
+            new Card { Name="151 Booster Pack", CardNumber="PACK-151", SetName="151", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=38m, ImageUrl="https://placehold.co/360x480?text=151+Booster+Pack" },
+            new Card { Name="Obsidian Flames Booster Pack", CardNumber="PACK-OF", SetName="Obsidian Flames", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=24m, ImageUrl="https://placehold.co/360x480?text=Obsidian+Flames" },
+            new Card { Name="151 Elite Trainer Box", CardNumber="ETB-151", SetName="151", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=390m, ImageUrl="https://placehold.co/360x480?text=151+Elite+Trainer+Box" },
+            new Card { Name="Surging Sparks Elite Trainer Box", CardNumber="ETB-SV8", SetName="Surging Sparks", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=310m, ImageUrl="https://placehold.co/360x480?text=Surging+Sparks+ETB" }
         };
 
         var existing = db.Cards.Select(c => new { c.CardNumber, c.SetName }).ToList();
