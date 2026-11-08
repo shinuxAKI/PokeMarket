@@ -13,22 +13,14 @@
     <select id="currency" aria-label="Display currency" onchange="changeCurrency(this.value)">
         <option value="QAR">QAR</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="PHP">PHP</option><option value="JPY">JPY</option>
     </select>
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a href="/Profile">My profile</a>
-    }
-    else
-    {
-        <a href="/Identity/Account/Login">Sign in</a>
-    }
+    @if (User.Identity?.IsAuthenticated == true) { <a href="/Profile">My profile</a> }
+    else { <a href="/Identity/Account/Login">Sign in</a> }
 </header>
 <main>@RenderBody()</main>
 <nav class="bottom" aria-label="Main navigation">
-    <a href="/">⌂<small>Home</small></a>
-    <a href="/Search">⌕<small>Search</small></a>
-    <a href="/Shop">▣<small>Shop</small></a>
-    <a href="/Social">♡<small>Social</small></a>
-    <a href="/Portfolio">▤<small>Portfolio</small></a>
+    <a href="/">⌂<small>Home</small></a><a href="/Search">⌕<small>Search</small></a>
+    <a href="/Shop">▣<small>Shop</small></a><a href="/Favourites">♡<small>Wishlist</small></a>
+    <a href="/Social">☷<small>Social</small></a><a href="/Portfolio">▤<small>Collection</small></a>
     <a href="/Profile">◎<small>Profile</small></a>
 </nav>
 <script>
