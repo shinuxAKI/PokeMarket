@@ -14,8 +14,8 @@ public class ReviewsController(MarketContext db, UserManager<IdentityUser> users
     public async Task<IActionResult> Add(int catalogCardId, int rating, string comment)
     {
         comment = (comment ?? "").Trim();
-        if (catalogCardId <= 0 || rating < 1 || rating > 5 || comment.Length > 800)
-            return BadRequest("Choose a rating from 1 to 5 and keep your review under 800 characters.");
+        if (catalogCardId <= 0 || rating < 1 || rating > 5 || comment.Length == 0 || comment.Length > 800)
+            return BadRequest("Write a review and choose a rating from 1 to 5 (maximum 800 characters).");
 
         var userId = users.GetUserId(User)!;
         var review = await db.ProductReviews.FirstOrDefaultAsync(x => x.CatalogCardId == catalogCardId && x.UserId == userId);
