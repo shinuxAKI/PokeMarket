@@ -7,22 +7,26 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<PokemonContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("PokemonContext")));
+builder.Services.AddDbContext<CatalogueIdentityContext>(options =>
+    options.UseSqlite("Data Source=pokemonmvc-auth.db"));
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
-}).AddRoles<IdentityRole>().AddEntityFrameworkStores<PokemonContext>();
+}).AddRoles<IdentityRole>().AddEntityFrameworkStores<CatalogueIdentityContext>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<PokemonContext>();
-    db.Database.EnsureCreated();
-    SeedData.Initialize(db);
+    var cardsDb = services.GetRequiredService<PokemonContext>();
+    cardsDb.Database.EnsureCreated();
+    SeedData.Initialize(cardsDb);
 
-    // Create the catalogue administrator only when credentials are supplied by the developer.
+    var identityDb = services.GetRequiredService<CatalogueIdentityContext>();
+    identityDb.Database.EnsureCreated();
+
     var email = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_EMAIL");
     var password = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_PASSWORD");
     if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(password))
