@@ -1,5 +1,8 @@
 @model IEnumerable<Card>
-@{ ViewData["Title"] = "Pokémon catalogue"; }
+@{
+    ViewData["Title"] = "Pokémon catalogue";
+    var sets = ViewBag.Sets as IEnumerable<string> ?? Enumerable.Empty<string>();
+}
 <section class="hero">
     <h1>Pokémon catalogue</h1>
     <p>Browse Pokémon cards, booster packs and Trainer Boxes.</p>
@@ -9,12 +12,49 @@
         <a class="btn" href="/Cards/Create">＋ Add product</a>
     }
 </section>
+
 <div class="catalogue-heading">
     <div>
         <h2>All products</h2>
-        <p>@Model.Count() products in the catalogue</p>
+        <p>@Model.Count() products found</p>
     </div>
 </div>
+
+<form method="get" action="/" class="catalogue-filters">
+    <div class="catalogue-search">
+        <label for="searchString">Search products</label>
+        <input id="searchString" name="searchString" type="search"
+               value="@ViewBag.SearchString"
+               placeholder="Search by name, card number, set or rarity..." />
+    </div>
+    <div class="catalogue-filter">
+        <label for="sortOrder">Sort by</label>
+        <select id="sortOrder" name="sortOrder">
+            <option value="" selected="@(string.IsNullOrEmpty((string)ViewBag.SortOrder))">Default</option>
+            <option value="name_asc" selected="@((string)ViewBag.SortOrder == "name_asc")">Name (A–Z)</option>
+            <option value="name_desc" selected="@((string)ViewBag.SortOrder == "name_desc")">Name (Z–A)</option>
+            <option value="price_asc" selected="@((string)ViewBag.SortOrder == "price_asc")">Price (low to high)</option>
+            <option value="price_desc" selected="@((string)ViewBag.SortOrder == "price_desc")">Price (high to low)</option>
+            <option value="set_asc" selected="@((string)ViewBag.SortOrder == "set_asc")">Set (A–Z)</option>
+            <option value="set_desc" selected="@((string)ViewBag.SortOrder == "set_desc")">Set (Z–A)</option>
+        </select>
+    </div>
+    <div class="catalogue-filter">
+        <label for="setFilter">Filter by set</label>
+        <select id="setFilter" name="setFilter">
+            <option value="">All sets</option>
+            @foreach (var set in sets)
+            {
+                <option value="@set" selected="@(set == (string)ViewBag.SetFilter)">@set</option>
+            }
+        </select>
+    </div>
+    <div class="catalogue-filter-actions">
+        <button class="btn" type="submit">Apply</button>
+        <a class="btn btn-secondary" href="/">Clear</a>
+    </div>
+</form>
+
 <div class="grid">
 @foreach (var c in Model)
 {
@@ -26,3 +66,8 @@
     </a>
 }
 </div>
+
+@if (!Model.Any())
+{
+    <p class="empty-state">No products match your search. Try another name or set.</p>
+}
