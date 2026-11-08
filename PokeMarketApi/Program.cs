@@ -15,6 +15,20 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
 }).AddEntityFrameworkStores<MarketContext>();
+
+// The MVC catalogue app and this marketplace run on localhost with different ports.
+// Give this app its own cookie names so the two apps cannot overwrite each other's
+// Identity or antiforgery cookies and trigger HTTP 400 on form posts such as logout.
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = ".PokeMarketApi.Identity";
+    options.LoginPath = "/Identity/Account/Login";
+});
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.Name = ".PokeMarketApi.Antiforgery";
+});
+
 builder.Services.AddHttpClient<CatalogClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["CatalogApi:BaseUrl"] ?? "http://localhost:5165/");
