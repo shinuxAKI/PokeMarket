@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Admin dashboard";
+    var recent = ViewBag.RecentProducts as IEnumerable<PokemonMvc.Models.Card> ?? Enumerable.Empty<PokemonMvc.Models.Card>();
+    var topSets = ViewBag.TopSets as IEnumerable<PokemonMvc.Controllers.AdminController.SetSummary> ?? Enumerable.Empty<PokemonMvc.Controllers.AdminController.SetSummary>();
+}
+<p class="eyebrow">POKÉMARKET ADMINISTRATION</p><h1>Admin dashboard</h1>
+<p>Overview of the catalogue and quick access to product management.</p>
+<div class="stats">
+    <div><small>Total products</small><h2>@ViewBag.TotalProducts</h2></div>
+    <div><small>Catalogue value (demo prices)</small><h2>QAR @(((decimal)ViewBag.CatalogueValue).ToString("N2"))</h2></div>
+    <div><small>Different sets</small><h2>@ViewBag.Sets</h2></div>
+</div>
+<div class="stats">
+    <div><small>Pokémon cards</small><h2>@ViewBag.TotalCards</h2></div>
+    <div><small>Booster packs</small><h2>@ViewBag.BoosterPacks</h2></div>
+    <div><small>Trainer boxes</small><h2>@ViewBag.TrainerBoxes</h2></div>
+</div>
+<div class="actions"><a class="btn" href="/Cards/Create">＋ Add product</a><a class="btn btn-secondary" href="/Cards">Manage catalogue</a><a class="btn btn-secondary" href="/">View public catalogue</a></div>
+<section class="admin-panels">
+    <div><h2>Products by set</h2>
+    @foreach (var set in topSets) { <div class="admin-row"><span>@set.Name</span><strong>@set.Count products</strong></div> }
+    </div>
+    <div><h2>Recently added</h2>
+    @foreach (var card in recent) { <div class="admin-row"><a href="/Cards/Edit/@card.Id">@card.Name</a><span>@card.ProductType</span></div> }
+    </div>
+</section>
