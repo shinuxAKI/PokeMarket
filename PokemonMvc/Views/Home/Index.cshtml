@@ -2,72 +2,38 @@
 @{
     ViewData["Title"] = "Pokémon catalogue";
     var sets = ViewBag.Sets as IEnumerable<string> ?? Enumerable.Empty<string>();
+    int currentPage = (int)ViewBag.CurrentPage;
+    int totalPages = (int)ViewBag.TotalPages;
 }
 <section class="hero">
-    <h1>Pokémon catalogue</h1>
-    <p>Browse Pokémon cards, booster packs and Trainer Boxes.</p>
-    @if (User.IsInRole("Admin"))
-    {
-        <a class="btn" href="/Cards">Manage catalogue</a>
-        <a class="btn" href="/Cards/Create">＋ Add product</a>
-    }
+    <h1>Pokémon catalogue</h1><p>Browse Pokémon cards, booster packs and Trainer Boxes.</p>
+    @if (User.IsInRole("Admin")) { <a class="btn" href="/Admin">Admin dashboard</a> <a class="btn" href="/Cards">Manage catalogue</a> <a class="btn" href="/Cards/Create">＋ Add product</a> }
 </section>
-
-<div class="catalogue-heading">
-    <div>
-        <h2>All products</h2>
-        <p>@Model.Count() products found</p>
-    </div>
-</div>
-
+<div class="catalogue-heading"><div><h2>All products</h2><p>@ViewBag.TotalCount products found · Page @currentPage of @totalPages</p></div></div>
 <form method="get" action="/" class="catalogue-filters">
-    <div class="catalogue-search">
-        <label for="searchString">Search products</label>
-        <input id="searchString" name="searchString" type="search"
-               value="@ViewBag.SearchString"
-               placeholder="Search by name, card number, set or rarity..." />
-    </div>
-    <div class="catalogue-filter">
-        <label for="sortOrder">Sort by</label>
-        <select id="sortOrder" name="sortOrder">
-            <option value="" selected="@(string.IsNullOrEmpty((string)ViewBag.SortOrder))">Default</option>
-            <option value="name_asc" selected="@((string)ViewBag.SortOrder == "name_asc")">Name (A–Z)</option>
-            <option value="name_desc" selected="@((string)ViewBag.SortOrder == "name_desc")">Name (Z–A)</option>
-            <option value="price_asc" selected="@((string)ViewBag.SortOrder == "price_asc")">Price (low to high)</option>
-            <option value="price_desc" selected="@((string)ViewBag.SortOrder == "price_desc")">Price (high to low)</option>
-            <option value="set_asc" selected="@((string)ViewBag.SortOrder == "set_asc")">Set (A–Z)</option>
-            <option value="set_desc" selected="@((string)ViewBag.SortOrder == "set_desc")">Set (Z–A)</option>
-        </select>
-    </div>
-    <div class="catalogue-filter">
-        <label for="setFilter">Filter by set</label>
-        <select id="setFilter" name="setFilter">
-            <option value="">All sets</option>
-            @foreach (var set in sets)
-            {
-                <option value="@set" selected="@(set == (string)ViewBag.SetFilter)">@set</option>
-            }
-        </select>
-    </div>
-    <div class="catalogue-filter-actions">
-        <button class="btn" type="submit">Apply</button>
-        <a class="btn btn-secondary" href="/">Clear</a>
-    </div>
+    <div class="catalogue-search"><label for="searchString">Search products</label><input id="searchString" name="searchString" type="search" value="@ViewBag.SearchString" placeholder="Search by name, card number, set or rarity..." /></div>
+    <div class="catalogue-filter"><label for="sortOrder">Sort by</label><select id="sortOrder" name="sortOrder">
+        <option value="" selected="@(string.IsNullOrEmpty((string)ViewBag.SortOrder))">Default</option>
+        <option value="name_asc" selected="@((string)ViewBag.SortOrder == "name_asc")">Name (A–Z)</option>
+        <option value="name_desc" selected="@((string)ViewBag.SortOrder == "name_desc")">Name (Z–A)</option>
+        <option value="price_asc" selected="@((string)ViewBag.SortOrder == "price_asc")">Price (low to high)</option>
+        <option value="price_desc" selected="@((string)ViewBag.SortOrder == "price_desc")">Price (high to low)</option>
+        <option value="set_asc" selected="@((string)ViewBag.SortOrder == "set_asc")">Set (A–Z)</option>
+        <option value="set_desc" selected="@((string)ViewBag.SortOrder == "set_desc")">Set (Z–A)</option>
+    </select></div>
+    <div class="catalogue-filter"><label for="setFilter">Filter by set</label><select id="setFilter" name="setFilter"><option value="">All sets</option>
+        @foreach (var set in sets) { <option value="@set" selected="@(set == (string)ViewBag.SetFilter)">@set</option> }
+    </select></div>
+    <div class="catalogue-filter-actions"><button class="btn" type="submit">Apply</button><a class="btn btn-secondary" href="/">Clear</a></div>
 </form>
-
 <div class="grid">
-@foreach (var c in Model)
-{
-    <a class="card" href="/Cards/Details/@c.Id">
-        <img src="@(string.IsNullOrWhiteSpace(c.ImageUrl) ? "https://placehold.co/240x330?text=Pok%C3%A9Market" : c.ImageUrl)" alt="@c.Name" loading="lazy">
-        <b>@c.Name</b>
-        <small>@c.ProductType · @c.SetName · @c.Rarity</small>
-        <strong>QAR @c.MarketPriceQar</strong>
-    </a>
-}
+@foreach (var c in Model) { <a class="card" href="/Cards/Details/@c.Id"><img src="@(string.IsNullOrWhiteSpace(c.ImageUrl) ? "https://placehold.co/240x330?text=Pok%C3%A9Market" : c.ImageUrl)" alt="@c.Name" loading="lazy"><b>@c.Name</b><small>@c.ProductType · @c.SetName · @c.Rarity</small><strong>QAR @c.MarketPriceQar</strong></a> }
 </div>
-
-@if (!Model.Any())
-{
-    <p class="empty-state">No products match your search. Try another name or set.</p>
+@if (!Model.Any()) { <p class="empty-state">No products match your search. Try another name or set.</p> }
+@if (totalPages > 1) {
+<nav class="pagination" aria-label="Catalogue pages">
+    @if (currentPage > 1) { <a class="btn btn-secondary" href="@Url.Action("Index", new { searchString = ViewBag.SearchString, sortOrder = ViewBag.SortOrder, setFilter = ViewBag.SetFilter, page = currentPage - 1 })">← Previous</a> }
+    <span>Page @currentPage of @totalPages</span>
+    @if (currentPage < totalPages) { <a class="btn" href="@Url.Action("Index", new { searchString = ViewBag.SearchString, sortOrder = ViewBag.SortOrder, setFilter = ViewBag.SetFilter, page = currentPage + 1 })">Next →</a> }
+</nav>
 }
