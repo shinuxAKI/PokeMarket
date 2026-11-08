@@ -1,0 +1,19 @@
+@model IEnumerable<PokeMarketApi.Models.ConversationMessage>
+@{ var contact = (Microsoft.AspNetCore.Identity.IdentityUser)ViewBag.Contact; var contactId = (string)ViewBag.ContactId; var me = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value; ViewData["Title"] = "Chat"; }
+<h1>Chat</h1>
+<p>Conversation with <strong>@contact.Email</strong></p>
+<div class="chatbox">
+@foreach (var item in Model)
+{
+    <div class="bubble @(item.SenderId == me ? "mine" : "theirs")">
+        <p>@item.Message</p><small>@item.SentAt.ToLocalTime().ToString("g")</small>
+    </div>
+}
+@if (!Model.Any()) { <p class="muted">No messages yet. Say hello!</p> }
+</div>
+<form method="post" action="/Social/Send" class="chatform">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="recipientId" value="@contactId">
+    <input name="message" maxlength="1000" required placeholder="Write a message...">
+    <button class="btn">Send</button>
+</form>
