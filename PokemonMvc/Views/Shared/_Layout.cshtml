@@ -12,6 +12,7 @@
     <nav>
         @if (User.IsInRole("Admin"))
         {
+            <a href="/Admin">Dashboard</a>
             <a href="/Cards">Manage catalogue</a>
             <a href="/Cards/Create">＋ Add product</a>
         }
