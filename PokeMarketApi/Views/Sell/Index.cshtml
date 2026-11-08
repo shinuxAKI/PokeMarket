@@ -1,11 +1,14 @@
 @model IEnumerable<SellerListing>
 @{ ViewData["Title"] = "Seller marketplace"; var currentUserId = (string?)ViewBag.CurrentUserId; }
-<p class="eyebrow">COMMUNITY MARKETPLACE</p><h1>Seller marketplace</h1><p>Publish and manage your listings. This is a demo marketplace; no checkout or payment is processed.</p>
+<p class="eyebrow">COMMUNITY MARKETPLACE</p><h1>Seller marketplace</h1><p>Publish and manage your listings. Upload a photo file from your device; external image links are not accepted. This is a demo marketplace; no checkout or payment is processed.</p>
 <form class="sellform" method="post" action="/Sell/Create" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <h2>Create a listing</h2><input name="productName" required maxlength="120" placeholder="Product name">
+    <h2>Create a listing</h2>
+    <input name="productName" required maxlength="120" placeholder="Product name">
     <select name="productType"><option>Card</option><option>Booster Pack</option><option>Trainer Box</option></select>
-    <label class="upload-field">Photo upload <input name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><input name="imageUrl" type="url" placeholder="Or paste an HTTPS image URL">
+    <label class="upload-field">Product photo (JPG, PNG or WEBP, max 5 MB)
+        <input name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+    </label>
     <select name="grade"><option>Ungraded</option>@for (int i=1;i<=10;i++) { <option>PSA @i</option> }</select>
     <select name="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option></select>
     <input name="priceQar" type="number" min="0.01" max="1000000" step="0.01" required placeholder="Price QAR">
@@ -15,8 +18,10 @@
 <div class="grid">
 @foreach (var x in Model)
 {
+    var safeImage = !string.IsNullOrWhiteSpace(x.ImageUrl) && x.ImageUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase)
+        ? x.ImageUrl : "/images/card-placeholder.svg";
     <article class="product">
-        <img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b>
+        <img src="@safeImage" alt="@x.ProductName"><b>@x.ProductName</b>
         <small>@x.ProductType · @x.Grade · @x.Condition</small>
         <strong data-qar="@x.PriceQar">QAR @x.PriceQar.ToString("N2")</strong>
         <span class="listing-status @(x.Status == "Sold" ? "sold" : "")">@x.Status</span>
