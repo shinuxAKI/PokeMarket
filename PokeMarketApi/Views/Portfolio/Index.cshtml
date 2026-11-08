@@ -1,2 +1,16 @@
 @model IEnumerable<PortfolioItem>
-@{ViewData["Title"]="Portfolio";}<h1>Your portfolio</h1><div class="stats"><div><small>Collection value</small><h2>QAR @Model.Sum(x=>x.CurrentValueQar).ToString("N2")</h2></div><div><small>Items owned</small><h2>@Model.Count()</h2></div><div><small>Graded cards</small><h2>@Model.Count(x=>x.Grade!="Ungraded")</h2></div></div><div class="grid">@foreach(var x in Model){<article class="product"><img src="@(x.ImageUrl??"https://placehold.co/240x330")"><b>@x.ProductName</b><small>@x.SetName · @x.Grade</small><strong>QAR @x.CurrentValueQar</strong><form method="post" action="/Portfolio/Remove"><input type="hidden" name="id" value="@x.Id"><button class="linkbtn">Remove</button></form></article>}</div>
+@{ ViewData["Title"] = "Portfolio"; }
+<p class="eyebrow">YOUR COLLECTION</p><h1>Your portfolio</h1>
+<div class="stats">
+    <div><small>Collection value</small><h2 data-qar="@Model.Sum(x => x.CurrentValueQar)">QAR @Model.Sum(x => x.CurrentValueQar).ToString("N2")</h2></div>
+    <div><small>Items owned</small><h2>@Model.Count()</h2></div>
+    <div><small>Graded cards</small><h2>@Model.Count(x => x.Grade != "Ungraded")</h2></div>
+</div>
+<div class="grid">
+@foreach (var x in Model)
+{
+    <article class="product"><img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b><small>@x.SetName · @x.Grade</small><strong data-qar="@x.CurrentValueQar">QAR @x.CurrentValueQar.ToString("N2")</strong>
+    <form method="post" action="/Portfolio/Remove">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"><button class="linkbtn">Remove</button></form></article>
+}
+</div>
+@if (!Model.Any()) { <p class="notice">Your portfolio is empty. Open the <a href="/Shop">Shop</a> and add your first card.</p> }
