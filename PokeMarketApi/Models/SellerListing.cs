@@ -1,1 +1,15 @@
-namespace PokeMarketApi.Models;public class SellerListing{public int Id{get;set;}public string SellerId{get;set;}="";public string ProductName{get;set;}="";public string ProductType{get;set;}="Card";public string? ImageUrl{get;set;}public string Grade{get;set;}="Ungraded";public decimal PriceQar{get;set;}public DateTime CreatedAt{get;set;}=DateTime.UtcNow;}
+namespace PokeMarketApi.Models;
+
+public class SellerListing
+{
+    public int Id { get; set; }
+    public string SellerId { get; set; } = "";
+    public string ProductName { get; set; } = "";
+    public string ProductType { get; set; } = "Card";
+    public string? ImageUrl { get; set; }
+    public string Grade { get; set; } = "Ungraded";
+    public string Condition { get; set; } = "Near Mint";
+    public string Status { get; set; } = "Available";
+    public decimal PriceQar { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
