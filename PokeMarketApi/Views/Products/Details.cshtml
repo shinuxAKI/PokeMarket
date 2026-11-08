@@ -54,7 +54,7 @@
         <form method="post" action="/Reviews/Add" class="review-form">
             @Html.AntiForgeryToken()<input type="hidden" name="catalogCardId" value="@Model.Id">
             <label>Your rating <select name="rating"><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select></label>
-            <label>Your review <textarea name="comment" maxlength="800" rows="3" placeholder="Share your thoughts about this product..."></textarea></label>
+            <label>Your review <textarea name="comment" maxlength="800" rows="3" required placeholder="Share your thoughts about this product..."></textarea></label>
             <button class="btn">Post / update review</button>
         </form>
     }
