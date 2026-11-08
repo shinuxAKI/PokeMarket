@@ -1,17 +1,27 @@
 @model IEnumerable<CatalogCard>
 @{ ViewData["Title"] = "Search"; }
 <p class="eyebrow">CARD DATABASE</p><h1>Discover Pokémon</h1>
+<p><a href="/Favourites">♥ View saved favourites</a></p>
 <form class="filters" method="get">
     <input name="q" value="@Context.Request.Query["q"]" placeholder="Search card name or number">
     <select name="setName"><option value="">All sets</option>@foreach (string s in ViewBag.Sets) { <option value="@s" selected="@(Context.Request.Query["setName"] == s)">@s</option> }</select>
     <select name="language"><option value="">All languages</option><option selected="@(Context.Request.Query["language"] == "English")">English</option><option selected="@(Context.Request.Query["language"] == "Japanese")">Japanese</option></select>
-    <button class="btn">Search</button>
+    <select name="productType"><option value="">All products</option><option selected="@(Context.Request.Query["productType"] == "Card")">Card</option><option selected="@(Context.Request.Query["productType"] == "Booster Pack")">Booster Pack</option><option selected="@(Context.Request.Query["productType"] == "Trainer Box")">Trainer Box</option></select>
+    <select name="sort"><option value="">Name</option><option value="price-low" selected="@(Context.Request.Query["sort"] == "price-low")">Price: low to high</option><option value="price-high" selected="@(Context.Request.Query["sort"] == "price-high")">Price: high to low</option><option value="name" selected="@(Context.Request.Query["sort"] == "name")">Name A–Z</option></select>
+    <button class="btn">Apply filters</button>
 </form>
 @if (ViewBag.Offline == true) { <p class="notice">The catalogue API is offline. Start PokemonMvc and check the API address in PokeMarketApi/appsettings.json.</p> }
 <div class="grid">
 @foreach (var c in Model)
 {
-    <a class="product" href="/Products/Details/@c.Id"><img src="@(c.ImageUrl ?? "https://placehold.co/240x330?text=Pok%C3%A9mon")" alt="@c.Name"><b>@c.Name</b><small>@c.CardNumber · @c.SetName · @c.Language</small><strong data-qar="@c.MarketPriceQar">QAR @c.MarketPriceQar.ToString("N2")</strong></a>
+    <article class="product">
+        <a href="/Products/Details/@c.Id"><img src="@(c.ImageUrl ?? "https://placehold.co/240x330?text=Pok%C3%A9mon")" alt="@c.Name"><b>@c.Name</b><small>@c.CardNumber · @c.SetName · @c.Language</small></a>
+        <strong data-qar="@c.MarketPriceQar">QAR @c.MarketPriceQar.ToString("N2")</strong>
+        <form method="post" action="/Favourites/Toggle">@Html.AntiForgeryToken()
+            <input type="hidden" name="catalogCardId" value="@c.Id"><input type="hidden" name="productName" value="@c.Name"><input type="hidden" name="imageUrl" value="@c.ImageUrl"><input type="hidden" name="setName" value="@c.SetName"><input type="hidden" name="priceQar" value="@c.MarketPriceQar">
+            <button class="linkbtn">♡ Save favourite</button>
+        </form>
+    </article>
 }
 </div>
-@if (!Model.Any() && ViewBag.Offline != true) { <p class="notice">No cards matched your search. Try another name, set or language.</p> }
+@if (!Model.Any() && ViewBag.Offline != true) { <p class="notice">No products matched your filters. Try a different search.</p> }
