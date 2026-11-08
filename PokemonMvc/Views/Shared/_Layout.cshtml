@@ -1,7 +1,23 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>@ViewData["Title"] · PokéMarket Catalogue</title><link rel="stylesheet" href="~/css/site.css" asp-append-version="true"></head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@ViewData["Title"] · PokéMarket Catalogue</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+</head>
 <body>
-<header><a href="/">PokéMarket · CATALOGUE</a><nav><a href="/Cards">Manage cards</a><a href="/Cards/Create">＋ Add card</a>@if (User.Identity?.IsAuthenticated == true) { <a href="/Identity/Account/Logout">Sign out</a> } else { <a href="/Identity/Account/Login">Admin sign in</a> }</nav></header>
+<header>
+    <a href="/">PokéMarket · CATALOGUE</a>
+    <nav>
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/Cards">Manage catalogue</a>
+            <a href="/Cards/Create">＋ Add product</a>
+        }
+        <partial name="_LoginPartial" />
+    </nav>
+</header>
 <main>@RenderBody()</main>
-</body></html>
+</body>
+</html>
