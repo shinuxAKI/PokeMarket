@@ -28,7 +28,7 @@ public class FavouritesController(MarketContext db, UserManager<IdentityUser> us
             ImageUrl = imageUrl, SetName = setName, PriceQar = priceQar
         });
         await db.SaveChangesAsync();
-        return Redirect(Request.Headers.Referer.ToString().Contains("/Search", StringComparison.OrdinalIgnoreCase)
+        return Redirect(Request.Headers["Referer"].ToString().Contains("/Search", StringComparison.OrdinalIgnoreCase)
             ? "/Search" : "/Favourites");
     }
 }
