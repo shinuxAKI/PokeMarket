@@ -2,31 +2,33 @@
 @{
     ViewData["Title"] = "Shop";
 }
-<section class="sectionhead">
-    <div>
-        <p class="eyebrow">POKÉMARKET STORE</p>
-        <h1>Shop Pokémon cards</h1>
-        <p>Browse products from the PokéMarket catalogue.</p>
-    </div>
-    <a href="/Search">Advanced search →</a>
+<section class="hero">
+    <p class="eyebrow">THE POKÉMARKET STORE</p>
+    <h1>Find your next favourite card.</h1>
+    <p>Explore the catalogue, discover new sets and grow your collection.</p>
+    <a class="btn" href="/Search">Explore all cards</a>
 </section>
+<div class="sectionhead">
+    <div><p class="eyebrow">CATALOGUE</p><h2>Available products</h2></div>
+    <a href="/Search">Filter and search →</a>
+</div>
 @if (ViewBag.Offline == true)
 {
-    <p class="notice">The catalogue is offline. Start PokemonMvc and check CatalogApi:BaseUrl in appsettings.json.</p>
+    <p class="notice"><strong>Catalogue connection unavailable.</strong> Start the PokemonMvc project and make sure its HTTPS address matches the CatalogApi:BaseUrl setting in PokeMarketApi/appsettings.json.</p>
 }
-@if (!Model.Any() && ViewBag.Offline != true)
+else if (!Model.Any())
 {
-    <p class="notice">No catalogue products have been added yet.</p>
+    <p class="notice">There are no products in the catalogue yet. Add cards in the PokemonMvc admin catalogue first.</p>
 }
 <div class="grid">
     @foreach (var item in Model)
     {
         <a class="product" href="/Products/Details/@item.Id">
-            <img src="@(item.ImageUrl ?? "https://placehold.co/240x330")" alt="@item.Name">
+            <img src="@(item.ImageUrl ?? "https://placehold.co/400x540?text=Pok%C3%A9mon+Card")" alt="@item.Name">
             <b>@item.Name</b>
             <small>@item.SetName · @item.Rarity</small>
-            <strong>QAR @item.MarketPriceQar</strong>
+            <strong>QAR @item.MarketPriceQar.ToString("N2")</strong>
         </a>
     }
 </div>
-<p class="muted">This is the store catalogue. Community seller listings are separate and available in the seller area.</p>
+<p class="muted">Store catalogue products are separate from community seller listings. Prices shown are catalogue values, not live verified market quotes.</p>
