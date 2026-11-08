@@ -45,4 +45,4 @@ Restart PokemonMvc after setting them. The app creates that account and assigns 
 
 ## Local database note
 
-Both apps use separate SQLite databases in their project folders. If you already ran an older version of this project before Identity was added, back up any catalogue data before considering a database reset. Do not delete either database if you have manually entered cards you need to keep.
+PokemonMvc stores catalogue cards in `pokemonmvc.db` and admin accounts in `pokemonmvc-auth.db`. PokeMarketApi stores marketplace accounts, portfolio items, seller listings, favourites and messages in `pokemarket.db`. The two apps do not share a database. If you already ran an older version of this project before Identity was added, back up any catalogue data before considering a database reset. Do not delete either database if you have manually entered cards you need to keep.
