@@ -8,4 +8,5 @@ public class MarketContext(DbContextOptions<MarketContext> o) : IdentityDbContex
     public DbSet<PortfolioItem> PortfolioItems => Set<PortfolioItem>();
     public DbSet<SellerListing> SellerListings => Set<SellerListing>();
     public DbSet<ConversationMessage> ConversationMessages => Set<ConversationMessage>();
+    public DbSet<FavouriteItem> FavouriteItems => Set<FavouriteItem>();
 }
