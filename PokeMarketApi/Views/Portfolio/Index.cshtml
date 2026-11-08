@@ -2,15 +2,27 @@
 @{ ViewData["Title"] = "Portfolio"; }
 <p class="eyebrow">YOUR COLLECTION</p><h1>Your portfolio</h1>
 <div class="stats">
-    <div><small>Collection value</small><h2 data-qar="@Model.Sum(x => x.CurrentValueQar)">QAR @Model.Sum(x => x.CurrentValueQar).ToString("N2")</h2></div>
-    <div><small>Items owned</small><h2>@Model.Count()</h2></div>
-    <div><small>Graded cards</small><h2>@Model.Count(x => x.Grade != "Ungraded")</h2></div>
+    <div><small>Collection value</small><h2 data-qar="@(Model.Sum(x => x.CurrentValueQar * x.Quantity))">QAR @Model.Sum(x => x.CurrentValueQar * x.Quantity).ToString("N2")</h2></div>
+    <div><small>Unique products</small><h2>@Model.Count()</h2></div>
+    <div><small>Total cards</small><h2>@Model.Sum(x => x.Quantity)</h2></div>
 </div>
 <div class="grid">
 @foreach (var x in Model)
 {
-    <article class="product"><img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName"><b>@x.ProductName</b><small>@x.SetName · @x.Grade</small><strong data-qar="@x.CurrentValueQar">QAR @x.CurrentValueQar.ToString("N2")</strong>
-    <form method="post" action="/Portfolio/Remove">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"><button class="linkbtn">Remove</button></form></article>
+    <article class="product">
+        <img src="@(x.ImageUrl ?? "https://placehold.co/240x330")" alt="@x.ProductName">
+        <b>@x.ProductName</b><small>@x.SetName · @x.Grade</small>
+        <small>@x.Condition · Quantity: @x.Quantity</small>
+        <strong data-qar="@(x.CurrentValueQar * x.Quantity)">QAR @((x.CurrentValueQar * x.Quantity).ToString("N2")) total</strong>
+        <form method="post" action="/Portfolio/Update" class="collection-edit">
+            @Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id">
+            <label>Quantity <input type="number" name="quantity" min="1" max="999" value="@x.Quantity" required></label>
+            <label>Condition <select name="condition"><option selected="@(x.Condition == "Near Mint")">Near Mint</option><option selected="@(x.Condition == "Lightly Played")">Lightly Played</option><option selected="@(x.Condition == "Moderately Played")">Moderately Played</option><option selected="@(x.Condition == "Heavily Played")">Heavily Played</option><option selected="@(x.Condition == "Damaged")">Damaged</option></select></label>
+            <label>Grade <select name="grade"><option selected="@(x.Grade == "Ungraded")">Ungraded</option>@for (int i=1;i<=10;i++) { <option selected="@(x.Grade == "PSA " + i)">PSA @i</option> }</select></label>
+            <button class="btn">Save changes</button>
+        </form>
+        <form method="post" action="/Portfolio/Remove" onsubmit="return confirm('Remove this item from your collection?')">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"><button class="linkbtn">Remove</button></form>
+    </article>
 }
 </div>
 @if (!Model.Any()) { <p class="notice">Your portfolio is empty. Open the <a href="/Shop">Shop</a> and add your first card.</p> }
