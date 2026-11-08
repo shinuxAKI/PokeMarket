@@ -27,6 +27,7 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
     {
         if (!ModelState.IsValid) return View(card);
         await Save(card, photo);
+        if (!ModelState.IsValid) return View(card);
         db.Cards.Add(card);
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
@@ -42,6 +43,7 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         if (id != card.Id) return BadRequest();
         if (!ModelState.IsValid) return View(card);
         await Save(card, photo);
+        if (!ModelState.IsValid) return View(card);
         db.Update(card);
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
