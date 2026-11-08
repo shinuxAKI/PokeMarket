@@ -31,8 +31,8 @@ public static class SeedData
             new Card { Name="Scarlet & Violet Booster Pack", CardNumber="PACK-SV1", SetName="Scarlet & Violet", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=22m, ImageUrl="https://jayspokehub.com/cdn/shop/files/pokemon_cards_scarlet_Violet_Booster_pack_Front_view.png?v=1742450679&width=1400" },
             new Card { Name="151 Booster Pack", CardNumber="PACK-151", SetName="151", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=38m, ImageUrl="https://www.reformedpokelab.com/cdn/shop/files/RPLLowRes-64.jpg?v=1740500975&width=1080" },
             new Card { Name="Obsidian Flames Booster Pack", CardNumber="PACK-OF", SetName="Obsidian Flames", Rarity="Sealed Product", ProductType="Booster Pack", MarketPriceQar=24m, ImageUrl="https://i5.walmartimages.com/asr/49cabd1b-4346-4d3a-a4dc-242e6fff60e9.b2e0afa0bf03fcff69e1880f63d01f4d.png?odnBg=FFFFFF&odnHeight=2000&odnWidth=2000 },
-            new Card { Name="151 Elite Trainer Box", CardNumber="ETB-151", SetName="151", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=390m, ImageUrl="https://placehold.co/360x480?text=151+Elite+Trainer+Box" },
-            new Card { Name="Surging Sparks Elite Trainer Box", CardNumber="ETB-SV8", SetName="Surging Sparks", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=310m, ImageUrl="https://placehold.co/360x480?text=Surging+Sparks+ETB" }
+            new Card { Name="151 Elite Trainer Box", CardNumber="ETB-151", SetName="151", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=390m, ImageUrl="https://tabletopgiant.ca/cdn/shop/files/151etb_771x1000.jpg?v=1692999212" },
+            new Card { Name="Surging Sparks Elite Trainer Box", CardNumber="ETB-SV8", SetName="Surging Sparks", Rarity="Sealed Product", ProductType="Trainer Box", MarketPriceQar=310m, ImageUrl="https://guf.com.au/cdn/shop/files/Pokemon-TCG-Scarlet-Violet-Surging-Sparks-Elite-Trainer-Box_EN-1024x975_771x1000.jpg?v=1761220470" }
         };
 
         var existing = db.Cards.ToList();
@@ -46,7 +46,7 @@ public static class SeedData
             }
 
             // Refresh demo sealed-product artwork on existing local databases too.
-            if (card.ProductType == "Booster Pack" &&
+            if ((card.ProductType == "Booster Pack" || card.ProductType == "Trainer Box") &&
                 (string.IsNullOrWhiteSpace(saved.ImageUrl) || saved.ImageUrl.Contains("placehold.co")))
             {
                 saved.ImageUrl = card.ImageUrl;
