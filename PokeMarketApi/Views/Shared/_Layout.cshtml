@@ -10,11 +10,30 @@
 <body>
 <header>
     <a class="logo" href="/">◉ PokéMarket</a>
-    <select id="currency" aria-label="Display currency" onchange="changeCurrency(this.value)">
-        <option value="QAR">QAR</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="PHP">PHP</option><option value="JPY">JPY</option>
-    </select>
-    @if (User.Identity?.IsAuthenticated == true) { <a href="/Profile">My profile</a> }
-    else { <a href="/Identity/Account/Login">Sign in</a> }
+    <div class="header-actions">
+        <label class="currency-wrap" for="currency"><span class="currency-label">Currency</span>
+            <select id="currency" aria-label="Display currency" onchange="changeCurrency(this.value)">
+                <option value="QAR">🇶🇦 QAR</option>
+                <option value="USD">🇺🇸 USD</option>
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="GBP">🇬🇧 GBP</option>
+                <option value="PHP">🇵🇭 PHP</option>
+                <option value="JPY">🇯🇵 JPY</option>
+            </select>
+        </label>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="profile-link" href="/Profile">◎ Profile</a>
+            <form class="logout-form" method="post" action="/Identity/Account/Logout?returnUrl=%2F">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="logout-button">Sign out</button>
+            </form>
+        }
+        else
+        {
+            <a class="profile-link" href="/Identity/Account/Login">Sign in</a>
+        }
+    </div>
 </header>
 <main>@RenderBody()</main>
 <nav class="bottom" aria-label="Main navigation">
@@ -27,7 +46,10 @@
 async function changeCurrency(code) {
     document.cookie = 'currency=' + code + ';path=/;samesite=lax';
     const labels = document.querySelectorAll('[data-qar]');
-    if (code === 'QAR') { labels.forEach(el => el.textContent = 'QAR ' + Number(el.dataset.qar).toFixed(2)); return; }
+    if (code === 'QAR') {
+        labels.forEach(el => el.textContent = 'QAR ' + Number(el.dataset.qar).toFixed(2));
+        return;
+    }
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/QAR');
         if (!response.ok) throw new Error('Rate service unavailable');
@@ -47,8 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     selector.value = selected;
     if (selected !== 'QAR') changeCurrency(selected);
 });
-</script>
-<script>
 document.querySelectorAll('form.filters').forEach(form => form.addEventListener('submit', () => {
     const button = form.querySelector('button[type=submit], button:not([type])');
     if (button) { button.disabled = true; button.textContent = 'Loading...'; }
