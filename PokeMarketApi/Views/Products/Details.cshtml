@@ -1,2 +1,18 @@
 @model CatalogCard
-@{ViewData["Title"]=Model.Name;}<div class="detail"><img src="@(Model.ImageUrl??"https://placehold.co/300x420")"><div><p class="eyebrow">@Model.SetName</p><h1>@Model.Name</h1><p>@Model.CardNumber · @Model.Rarity · @Model.Language</p><h2>QAR @Model.MarketPriceQar</h2><p class="muted">Historical market chart is not enabled until a licensed price-history provider is configured. No estimated history is invented.</p><form method="post" action="/Portfolio/Add"><input type="hidden" name="productName" value="@Model.Name"><input type="hidden" name="imageUrl" value="@Model.ImageUrl"><input type="hidden" name="setName" value="@Model.SetName"><input type="hidden" name="currentValueQar" value="@Model.MarketPriceQar"><select name="grade"><option>Ungraded</option>@for(int i=1;i<=10;i++){<option>PSA @i</option>}</select><button class="btn">Add to portfolio</button></form></div></div>
+@{ ViewData["Title"] = Model.Name; }
+<div class="detail">
+    <img src="@(Model.ImageUrl ?? "https://placehold.co/300x420?text=Pok%C3%A9mon")" alt="@Model.Name">
+    <div>
+        <p class="eyebrow">@Model.SetName</p><h1>@Model.Name</h1>
+        <p>@Model.CardNumber · @Model.Rarity · @Model.Language</p>
+        <h2 data-qar="@Model.MarketPriceQar">QAR @Model.MarketPriceQar.ToString("N2")</h2>
+        <p class="notice">Historical market pricing is not connected to a verified provider yet. This page does not invent historical values or percentage changes.</p>
+        <form method="post" action="/Portfolio/Add">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productName" value="@Model.Name"><input type="hidden" name="imageUrl" value="@Model.ImageUrl"><input type="hidden" name="setName" value="@Model.SetName"><input type="hidden" name="currentValueQar" value="@Model.MarketPriceQar">
+            <select name="grade"><option>Ungraded</option>@for (int i=1;i<=10;i++) { <option>PSA @i</option> }</select>
+            <button class="btn">Add to portfolio</button>
+        </form>
+        <p class="muted">You must sign in to save a card to your portfolio.</p>
+    </div>
+</div>
