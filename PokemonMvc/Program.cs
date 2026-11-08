@@ -27,20 +27,25 @@ using (var scope = app.Services.CreateScope())
     var identityDb = services.GetRequiredService<CatalogueIdentityContext>();
     identityDb.Database.EnsureCreated();
 
-    var email = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_EMAIL");
-    var password = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_PASSWORD");
-    if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(password))
+    // Development-only fallback credentials make a fresh local checkout usable.
+    // Environment variables override these values when configured.
+    if (app.Environment.IsDevelopment())
     {
+        var email = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_EMAIL") ?? "admin@pokedex.com";
+        var password = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_PASSWORD") ?? "PokedexAdmin123!";
         var roles = services.GetRequiredService<RoleManager<IdentityRole>>();
         var users = services.GetRequiredService<UserManager<IdentityUser>>();
+
         if (!await roles.RoleExistsAsync("Admin"))
             await roles.CreateAsync(new IdentityRole("Admin"));
+
         var admin = await users.FindByEmailAsync(email);
         if (admin == null)
         {
             admin = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
             var result = await users.CreateAsync(admin, password);
-            if (result.Succeeded) await users.AddToRoleAsync(admin, "Admin");
+            if (result.Succeeded)
+                await users.AddToRoleAsync(admin, "Admin");
         }
         else if (!await users.IsInRoleAsync(admin, "Admin"))
         {
@@ -48,6 +53,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
