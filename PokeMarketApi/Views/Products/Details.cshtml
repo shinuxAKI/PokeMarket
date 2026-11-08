@@ -4,6 +4,7 @@
     var reviews = ViewBag.Reviews as IEnumerable<ProductReview> ?? Enumerable.Empty<ProductReview>();
     var history = ViewBag.PriceHistory as IEnumerable<PriceSnapshot> ?? Enumerable.Empty<PriceSnapshot>();
     double? average = ViewBag.AverageRating as double?;
+    var maxPrice = Math.Max(1m, history.Any() ? history.Max(x => x.PriceQar) : 1m);
 }
 <div class="detail">
     <img src="@(Model.ImageUrl ?? "https://placehold.co/300x420?text=Pok%C3%A9mon")" alt="@Model.Name">
@@ -35,10 +36,14 @@
 <section class="price-history">
     <div class="sectionhead"><div><p class="eyebrow">PRICE TRACKER</p><h2>Price history</h2></div></div>
     <p class="notice">Illustrative demo history based on the catalogue price. These are not verified market transactions or live price data.</p>
-    <div class="history-list">
+    <div class="history-chart">
     @foreach (var point in history)
     {
-        <div class="history-point"><span>@point.RecordedAt.ToLocalTime().ToString("dd MMM yyyy")</span><strong>QAR @point.PriceQar.ToString("N2")</strong></div>
+        <div class="history-bar-column">
+            <strong>QAR @point.PriceQar.ToString("N0")</strong>
+            <div class="history-bar-track"><div class="history-bar" style="height:@((double)(point.PriceQar / maxPrice * 100m))%"></div></div>
+            <small>@point.RecordedAt.ToLocalTime().ToString("dd MMM")</small>
+        </div>
     }
     </div>
 </section>
@@ -56,7 +61,7 @@
     else { <p class="notice"><a href="/Identity/Account/Login">Sign in</a> to leave a review.</p> }
     @foreach (var review in reviews)
     {
-        <article class="review-card"><strong>@review.UserEmail</strong><span class="review-stars">@new string('★', review.Rating)@new string('☆', 5-review.Rating)</span><p>@review.Comment</p><small>@review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small></article>
+        <article class="review-card"><strong>@review.UserEmail</strong><span class="review-stars">@(new string('★', review.Rating) + new string('☆', 5-review.Rating))</span><p>@review.Comment</p><small>@review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small></article>
     }
     @if (!reviews.Any()) { <p class="muted">No reviews yet. Be the first to review this product.</p> }
 </section>
