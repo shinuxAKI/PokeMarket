@@ -2,9 +2,16 @@
 @{ ViewData["Title"] = "Dashboard"; }
 <section class="hero">
     <h1>Pokémon catalogue</h1>
-    <p>Manage your Pokémon cards, booster packs and Trainer Boxes.</p>
-    <a class="btn" href="/Cards">Manage catalogue</a>
-    <a class="btn" href="/Cards/Create">＋ Add product</a>
+    <p>Browse Pokémon cards, booster packs and Trainer Boxes.</p>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn" href="/Cards">Manage catalogue</a>
+        <a class="btn" href="/Cards/Create">＋ Add product</a>
+    }
+    else
+    {
+        <a class="btn" href="/Identity/Account/Login">Sign in</a>
+    }
 </section>
 <h2>Featured products</h2>
 <div class="grid">
