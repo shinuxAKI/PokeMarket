@@ -74,5 +74,6 @@ document.querySelectorAll('form.filters').forEach(form => form.addEventListener(
     if (button) { button.disabled = true; button.textContent = 'Loading...'; }
 }));
 </script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
