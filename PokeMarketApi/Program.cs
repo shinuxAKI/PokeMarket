@@ -36,6 +36,17 @@ using (var scope = app.Services.CreateScope())
         );
         CREATE INDEX IF NOT EXISTS IX_ConversationMessages_SenderId_RecipientId
         ON ConversationMessages (SenderId, RecipientId);
+        CREATE TABLE IF NOT EXISTS FavouriteItems (
+            Id INTEGER NOT NULL CONSTRAINT PK_FavouriteItems PRIMARY KEY AUTOINCREMENT,
+            UserId TEXT NOT NULL,
+            CatalogCardId INTEGER NOT NULL,
+            ProductName TEXT NOT NULL,
+            ImageUrl TEXT NULL,
+            SetName TEXT NULL,
+            PriceQar TEXT NOT NULL
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS IX_FavouriteItems_UserId_CatalogCardId
+        ON FavouriteItems (UserId, CatalogCardId);
         """);
 }
 app.UseHttpsRedirection();
