@@ -1,2 +1,8 @@
 @model Card
-<h1>Delete @Model.Name?</h1><form asp-action="Delete" method="post"><input type="hidden" asp-for="Id"><button class="btn danger">Delete permanently</button><a href="/Cards">Cancel</a></form>
+<h1>Delete @Model.Name?</h1>
+<p class="notice">This will permanently remove this product from the catalogue.</p>
+<form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this product?')">
+    <input type="hidden" asp-for="Id">
+    <button class="btn danger">Delete permanently</button>
+    <a class="btn btn-secondary" href="/Cards">Cancel</a>
+</form>
