@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 620" role="img" aria-label="Pokémon card placeholder">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eee8fb"/><stop offset="1" stop-color="#fceaf0"/></linearGradient></defs>
+<rect width="480" height="620" rx="28" fill="url(#g)"/>
+<rect x="42" y="42" width="396" height="536" rx="22" fill="none" stroke="#c9bde9" stroke-width="8"/>
+<circle cx="240" cy="250" r="105" fill="#fff" stroke="#b8a9e4" stroke-width="12"/>
+<path d="M135 250h210" stroke="#b8a9e4" stroke-width="12"/>
+<circle cx="240" cy="250" r="28" fill="#e8dff8" stroke="#b8a9e4" stroke-width="10"/>
+<text x="240" y="440" text-anchor="middle" fill="#62549a" font-family="Arial,sans-serif" font-size="28" font-weight="700">NO PHOTO</text>
+<text x="240" y="480" text-anchor="middle" fill="#887da9" font-family="Arial,sans-serif" font-size="18">PokéMarket listing</text>
+</svg>
