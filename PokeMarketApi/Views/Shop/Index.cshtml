@@ -27,7 +27,7 @@ else if (!Model.Any())
             <img src="@(item.ImageUrl ?? "https://placehold.co/400x540?text=Pok%C3%A9mon+Card")" alt="@item.Name">
             <b>@item.Name</b>
             <small>@item.ProductType · @item.SetName · @item.Rarity</small>
-            <strong>QAR @item.MarketPriceQar.ToString("N2")</strong>
+            <strong data-qar="@item.MarketPriceQar">QAR @item.MarketPriceQar.ToString("N2")</strong>
         </a>
     }
 </div>
