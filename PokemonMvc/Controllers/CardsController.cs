@@ -6,7 +6,7 @@ using PokemonMvc.Models;
 
 namespace PokemonMvc.Controllers;
 
-public class CardsController(PokemonContext db, IWebHostEnvironment env) : Controller
+public class CardsController(PokemonContext db) : Controller
 {
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index(string? search)
@@ -17,7 +17,6 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         return View(await query.OrderBy(x => x.Name).ToListAsync());
     }
 
-    // Product pages are public; only management actions require the Admin role.
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
@@ -30,10 +29,8 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
 
     [Authorize(Roles = "Admin")]
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Card card, IFormFile? photo)
+    public async Task<IActionResult> Create(Card card)
     {
-        if (!ModelState.IsValid) return View(card);
-        await Save(card, photo);
         if (!ModelState.IsValid) return View(card);
         db.Cards.Add(card);
         await db.SaveChangesAsync();
@@ -49,13 +46,23 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
 
     [Authorize(Roles = "Admin")]
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Card card, IFormFile? photo)
+    public async Task<IActionResult> Edit(int id, Card card)
     {
         if (id != card.Id) return BadRequest();
         if (!ModelState.IsValid) return View(card);
-        await Save(card, photo);
-        if (!ModelState.IsValid) return View(card);
-        db.Update(card);
+
+        var existing = await db.Cards.FindAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Name = card.Name;
+        existing.CardNumber = card.CardNumber;
+        existing.SetName = card.SetName;
+        existing.Language = card.Language;
+        existing.ProductType = card.ProductType;
+        existing.Rarity = card.Rarity;
+        existing.MarketPriceQar = card.MarketPriceQar;
+        existing.ImageUrl = card.ImageUrl;
+
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
@@ -74,20 +81,5 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         var card = await db.Cards.FindAsync(id);
         if (card != null) { db.Remove(card); await db.SaveChangesAsync(); }
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task Save(Card card, IFormFile? photo)
-    {
-        if (photo == null || photo.Length == 0) return;
-        if (photo.Length > 5 * 1024 * 1024) { ModelState.AddModelError("photo", "Image must be 5 MB or smaller."); return; }
-        var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-        if (!new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(extension))
-        { ModelState.AddModelError("photo", "Use a JPG, PNG or WEBP image."); return; }
-        var directory = Path.Combine(env.WebRootPath, "uploads");
-        Directory.CreateDirectory(directory);
-        var filename = Guid.NewGuid() + extension;
-        await using var stream = System.IO.File.Create(Path.Combine(directory, filename));
-        await photo.CopyToAsync(stream);
-        card.ImageUrl = "/uploads/" + filename;
     }
 }
