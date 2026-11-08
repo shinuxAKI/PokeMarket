@@ -1,6 +1,6 @@
 @model IEnumerable<CatalogCard>
 @{ ViewData["Title"] = "Search"; }
-<p class="eyebrow">CARD DATABASE</p><h1>Discover Pokémon</h1>
+<p class="eyebrow">CARD DATABASE</p><h1>Discover Pokémon</h1><p class="muted">@ViewBag.TotalCount products found</p>
 <p><a href="/Favourites">♥ View saved favourites</a></p>
 <form class="filters" method="get">
     <input name="q" value="@Context.Request.Query["q"]" placeholder="Search card name or number">
@@ -25,3 +25,11 @@
 }
 </div>
 @if (!Model.Any() && ViewBag.Offline != true) { <p class="notice">No products matched your filters. Try a different search.</p> }
+@if ((int)ViewBag.TotalPages > 1)
+{
+    <nav class="pagination" aria-label="Search pages">
+        @if ((int)ViewBag.Page > 1) { <a class="btn" href="@Url.Action("Index", new { q = Context.Request.Query["q"], setName = Context.Request.Query["setName"], language = Context.Request.Query["language"], productType = Context.Request.Query["productType"], sort = Context.Request.Query["sort"], page = (int)ViewBag.Page - 1 })">← Previous</a> }
+        <span>Page @ViewBag.Page of @ViewBag.TotalPages</span>
+        @if ((int)ViewBag.Page < (int)ViewBag.TotalPages) { <a class="btn" href="@Url.Action("Index", new { q = Context.Request.Query["q"], setName = Context.Request.Query["setName"], language = Context.Request.Query["language"], productType = Context.Request.Query["productType"], sort = Context.Request.Query["sort"], page = (int)ViewBag.Page + 1 })">Next →</a> }
+    </nav>
+}
