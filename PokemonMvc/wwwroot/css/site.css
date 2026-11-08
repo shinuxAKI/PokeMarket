@@ -30,3 +30,28 @@
 @media(max-width:430px){.stats{grid-template-columns:1fr}.pagination{gap:9px}}
 
 button:disabled,.btn:disabled{opacity:.65;cursor:wait;transform:none;box-shadow:none}
+
+
+/* Shared styling for ASP.NET Core Identity screens */
+main .row{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin:24px auto}
+main .col-md-4,main .col-md-6,main .col-lg-6{width:min(100%,520px);flex:0 1 520px}
+main section[aria-labelledby],main .account-panel{max-width:760px;margin:24px auto;padding:clamp(22px,4vw,38px);background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+main .form-floating{position:relative;margin:14px 0}
+main .form-floating>.form-control,main .form-floating>input,main .form-floating>select{width:100%;min-height:48px;padding:13px 14px;background:#fff;border:1px solid #ded8ee;border-radius:12px;color:var(--ink)}
+main .form-floating>label{display:block;margin:0 0 7px;color:var(--muted);font-size:12px;font-weight:800}
+main .form-control{width:100%;max-width:100%}
+main .form-check{display:flex;align-items:center;gap:9px;margin:12px 0;color:var(--muted)}
+main .form-check-input{width:17px;height:17px;accent-color:var(--blue)}
+main .btn-primary,main button[type=submit],main input[type=submit]{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:11px 19px;border:0;border-radius:11px;background:linear-gradient(120deg,var(--red),#b65d9c);color:#fff;font-weight:800;cursor:pointer}
+main .btn-primary:hover,main button[type=submit]:hover,main input[type=submit]:hover{background:#5948b0;color:#fff}
+main .btn-link{background:transparent!important;color:#6958c7!important;padding:7px 0!important;box-shadow:none!important}
+main .text-danger,.validation-summary-errors{color:#b83e63!important;font-size:13px}
+main .validation-summary-errors ul{padding-left:20px}
+main .text-muted{color:var(--muted)!important}
+main .form-text{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+main hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+main .navbar-nav{display:flex;align-items:center;gap:12px;list-style:none;margin:0;padding:0}
+main .navbar-nav .nav-link{color:#6958c7;font-weight:700}
+main .navbar-nav form{margin:0}
+main > form:not(.catalogue-filters):not(.sellform){max-width:520px;margin:24px auto;padding:clamp(22px,4vw,38px);background:white;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+@media(max-width:650px){main .row{display:block}main .col-md-4,main .col-md-6,main .col-lg-6{width:100%}main section[aria-labelledby],main .account-panel{padding:20px 16px}}
