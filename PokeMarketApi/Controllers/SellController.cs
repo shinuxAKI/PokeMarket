@@ -32,10 +32,10 @@ public class SellController(MarketContext db, UserManager<IdentityUser> users, I
             await photo.CopyToAsync(stream);
             imageUrl = "/uploads/" + filename;
         }
-        else if (!string.IsNullOrWhiteSpace(imageUrl) && !Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri) ||
-                 !string.IsNullOrWhiteSpace(imageUrl) && uri.Scheme != Uri.UriSchemeHttps)
+        else if (!string.IsNullOrWhiteSpace(imageUrl))
         {
-            return BadRequest("Image URL must use HTTPS.");
+            if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri) || imageUri.Scheme != Uri.UriSchemeHttps)
+                return BadRequest("Image URL must use HTTPS.");
         }
         db.SellerListings.Add(new SellerListing
         {
