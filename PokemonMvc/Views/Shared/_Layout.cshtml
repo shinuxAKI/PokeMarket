@@ -20,5 +20,11 @@
     </nav>
 </header>
 <main>@RenderBody()</main>
+<script>
+document.querySelectorAll('form.catalogue-filters').forEach(form => form.addEventListener('submit', () => {
+    const button = form.querySelector('button[type=submit], button:not([type])');
+    if (button) { button.disabled = true; button.textContent = 'Loading...'; }
+}));
+</script>
 </body>
 </html>
