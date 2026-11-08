@@ -6,9 +6,9 @@ using PokemonMvc.Models;
 
 namespace PokemonMvc.Controllers;
 
-[Authorize(Roles = "Admin")]
 public class CardsController(PokemonContext db, IWebHostEnvironment env) : Controller
 {
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index(string? search)
     {
         var query = db.Cards.AsQueryable();
@@ -16,12 +16,19 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
             query = query.Where(x => x.Name.Contains(search) || x.CardNumber.Contains(search));
         return View(await query.OrderBy(x => x.Name).ToListAsync());
     }
+
+    // Product pages are public; only management actions require the Admin role.
+    [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
         var card = await db.Cards.FindAsync(id);
         return card == null ? NotFound() : View(card);
     }
+
+    [Authorize(Roles = "Admin")]
     public IActionResult Create() => View(new Card());
+
+    [Authorize(Roles = "Admin")]
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Card card, IFormFile? photo)
     {
@@ -32,11 +39,15 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
+
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var card = await db.Cards.FindAsync(id);
         return card == null ? NotFound() : View(card);
     }
+
+    [Authorize(Roles = "Admin")]
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Card card, IFormFile? photo)
     {
@@ -48,11 +59,15 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
+
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var card = await db.Cards.FindAsync(id);
         return card == null ? NotFound() : View(card);
     }
+
+    [Authorize(Roles = "Admin")]
     [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
@@ -60,6 +75,7 @@ public class CardsController(PokemonContext db, IWebHostEnvironment env) : Contr
         if (card != null) { db.Remove(card); await db.SaveChangesAsync(); }
         return RedirectToAction(nameof(Index));
     }
+
     private async Task Save(Card card, IFormFile? photo)
     {
         if (photo == null || photo.Length == 0) return;
