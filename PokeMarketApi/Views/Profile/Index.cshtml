@@ -1,0 +1,16 @@
+@{ ViewData["Title"] = "Profile"; }
+<section class="hero">
+    <p class="eyebrow">YOUR ACCOUNT</p>
+    <h1>Welcome back.</h1>
+    <p>@ViewBag.Email</p>
+    <a class="btn" href="/Identity/Account/Manage">Manage account</a>
+</section>
+<div class="stats">
+    <div><small>Portfolio items</small><h2>@ViewBag.Items</h2></div>
+    <div><small>Collection value</small><h2>QAR @(((decimal)ViewBag.Value).ToString("N2"))</h2></div>
+    <div><small>Seller listings</small><h2>@ViewBag.Listings</h2></div>
+</div>
+<div class="twocol">
+    <div><h2>Account settings</h2><p>Change your password and manage your account details.</p><a href="/Identity/Account/Manage">Open settings →</a></div>
+    <div><h2>Your collection</h2><p>View the cards you have added to your portfolio.</p><a href="/Portfolio">Open portfolio →</a></div>
+</div>
