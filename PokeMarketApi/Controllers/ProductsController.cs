@@ -1,0 +1,1 @@
+using Microsoft.AspNetCore.Mvc;using PokeMarketApi.Services;namespace PokeMarketApi.Controllers;public class ProductsController(CatalogClient c):Controller{public async Task<IActionResult> Details(int id){try{var x=await c.GetCard(id);return x==null?NotFound():View(x);}catch{return StatusCode(503,"Catalogue offline. Start PokemonMvc and check CatalogApi:BaseUrl.");}}}

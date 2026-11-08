@@ -1,0 +1,2 @@
+@model Card
+@{ViewData["Title"]="Edit card";}<h1>Edit card</h1><form asp-action="Edit" method="post" enctype="multipart/form-data"><input type="hidden" asp-for="Id"><partial name="_Form" model="Model"><button class="btn">Save changes</button></form>

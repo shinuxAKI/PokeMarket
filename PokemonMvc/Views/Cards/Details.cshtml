@@ -1,0 +1,2 @@
+@model Card
+@{ViewData["Title"]=Model.Name;}<div class="detail"><img src="@(Model.ImageUrl??"https://placehold.co/300x420")"><div><h1>@Model.Name</h1><p>@Model.CardNumber · @Model.SetName · @Model.Rarity</p><h2>QAR @Model.MarketPriceQar</h2><a class="btn" href="/Cards/Edit/@Model.Id">Edit</a></div></div>

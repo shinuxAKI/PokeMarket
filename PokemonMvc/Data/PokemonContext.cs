@@ -1,0 +1,1 @@
+using Microsoft.EntityFrameworkCore;using PokemonMvc.Models;namespace PokemonMvc.Data;public class PokemonContext(DbContextOptions<PokemonContext> o):DbContext(o){public DbSet<Card> Cards=>Set<Card>();}

@@ -1,0 +1,1 @@
+using Microsoft.AspNetCore.Mvc;using PokeMarketApi.Services;namespace PokeMarketApi.Controllers;public class HomeController(CatalogClient c):Controller{public async Task<IActionResult> Index(){try{return View(await c.GetCards());}catch{ViewBag.Offline=true;return View(new List<CatalogCard>());}}}

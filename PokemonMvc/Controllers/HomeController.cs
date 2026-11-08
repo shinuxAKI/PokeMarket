@@ -1,0 +1,1 @@
+using Microsoft.AspNetCore.Mvc;using PokemonMvc.Data;using Microsoft.EntityFrameworkCore;namespace PokemonMvc.Controllers;public class HomeController(PokemonContext db):Controller{public async Task<IActionResult> Index()=>View(await db.Cards.OrderByDescending(x=>x.MarketPriceQar).Take(8).ToListAsync());}

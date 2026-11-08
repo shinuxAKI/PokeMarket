@@ -1,0 +1,2 @@
+@model IEnumerable<Card>
+@{ViewData["Title"]="Dashboard";}<section class="hero"><h1>Pokémon catalogue</h1><p>Manage cards and publish catalogue data to the marketplace.</p><a class="btn" href="/Cards/Create">Add a card</a> <a href="/api/catalog/cards">View JSON endpoint</a></section><h2>Featured cards</h2><div class="grid">@foreach(var c in Model){<a class="card" href="/Cards/Details/@c.Id"><img src="@(c.ImageUrl??"https://placehold.co/240x330")"><b>@c.Name</b><small>@c.SetName · @c.Rarity</small><strong>QAR @c.MarketPriceQar</strong></a>}</div>
