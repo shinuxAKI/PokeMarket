@@ -51,3 +51,36 @@ button:disabled,.btn:disabled{opacity:.65;cursor:wait;transform:none;box-shadow:
 .upload-field{display:flex;flex-direction:column;gap:8px;min-width:220px;color:var(--muted);font-size:12px;font-weight:700}
 .upload-field input{width:100%;padding:9px}
 @media(max-width:760px){.header-actions{flex-wrap:wrap;gap:8px}.currency-label{display:none}.currency-wrap select{min-width:94px}.logout-button{padding:9px 10px}}
+
+
+/* Identity pages: login, registration, password management and logout */
+main .row{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin:24px auto}
+main .col-md-4,main .col-md-6,main .col-lg-6{width:min(100%,520px);flex:0 1 520px}
+main section[aria-labelledby],main .account-panel{max-width:760px;margin:24px auto;padding:clamp(22px,4vw,38px);background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+main h1{margin-bottom:12px}
+main .form-floating{position:relative;margin:14px 0}
+main .form-floating>.form-control,main .form-floating>input,main .form-floating>select{width:100%;min-height:48px;padding:13px 14px;background:#fff;border:1px solid #ded8ee;border-radius:12px;color:var(--ink)}
+main .form-floating>label{display:block;margin:0 0 7px;color:var(--muted);font-size:12px;font-weight:800}
+main .form-control{width:100%;max-width:100%}
+main .form-check{display:flex;align-items:center;gap:9px;margin:12px 0;color:var(--muted)}
+main .form-check-input{width:17px;height:17px;accent-color:var(--blue)}
+main .btn-primary,main button[type=submit],main input[type=submit]{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:11px 19px;border:0;border-radius:11px;background:linear-gradient(120deg,var(--red),#b65d9c);color:#fff;font-weight:800;cursor:pointer}
+main .btn-primary:hover,main button[type=submit]:hover,main input[type=submit]:hover{background:var(--blue2);color:#fff}
+main .btn-link{background:transparent!important;color:var(--blue)!important;padding:7px 0!important;box-shadow:none!important}
+main .text-danger,.validation-summary-errors{color:#b83e63!important;font-size:13px}
+main .validation-summary-errors ul{padding-left:20px}
+main .text-muted{color:var(--muted)!important}
+main .form-text{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+main hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+main ul{line-height:1.9}
+main .navbar-nav{display:flex;align-items:center;gap:12px;list-style:none;margin:0;padding:0}
+main .navbar-nav .nav-link{color:var(--blue);font-weight:700}
+main .navbar-nav form{margin:0}
+main .pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:26px 0}
+main .notice a{font-weight:800}
+main .account-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+@media(max-width:650px){
+  main .row{display:block}
+  main .col-md-4,main .col-md-6,main .col-lg-6{width:100%}
+  main section[aria-labelledby],main .account-panel{padding:20px 16px}
+}
