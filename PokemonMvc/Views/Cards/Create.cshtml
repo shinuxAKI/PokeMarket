@@ -1,2 +1,7 @@
 @model Card
-@{ViewData["Title"]="Add card";}<h1>Add card</h1><form asp-action="Create" method="post" enctype="multipart/form-data"><partial name="_Form" model="Model" /><button class="btn">Save card</button></form>
+@{ViewData["Title"]="Add product";}
+<h1>Add product</h1>
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+    <button class="btn">Save product</button>
+</form>
