@@ -5,7 +5,7 @@ namespace PokeMarketApi.Controllers;
 
 public class SearchController(CatalogClient catalog) : Controller
 {
-    public async Task<IActionResult> Index(string? q, string? setName, string? language, string? productType, string? sort)
+    public async Task<IActionResult> Index(string? q, string? setName, string? language, string? productType, string? sort, int page = 1)
     {
         try
         {
@@ -20,17 +20,26 @@ public class SearchController(CatalogClient catalog) : Controller
             {
                 "price-low" => cards.OrderBy(x => x.MarketPriceQar).ToList(),
                 "price-high" => cards.OrderByDescending(x => x.MarketPriceQar).ToList(),
-                "name" => cards.OrderBy(x => x.Name).ToList(),
                 _ => cards.OrderBy(x => x.Name).ToList()
             };
+            const int pageSize = 12;
+            var totalCount = cards.Count;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+            page = Math.Clamp(page, 1, totalPages);
+            ViewBag.Page = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
             ViewBag.Sets = await catalog.GetSets();
             ViewBag.Offline = false;
-            return View(cards);
+            return View(cards.Skip((page - 1) * pageSize).Take(pageSize).ToList());
         }
         catch
         {
             ViewBag.Sets = new List<string>();
             ViewBag.Offline = true;
+            ViewBag.Page = 1;
+            ViewBag.TotalPages = 1;
+            ViewBag.TotalCount = 0;
             return View(new List<CatalogCard>());
         }
     }
