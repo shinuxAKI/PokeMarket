@@ -4,8 +4,8 @@ A .NET 10 solution containing two separate ASP.NET Core MVC applications.
 
 ## Projects
 
-- **PokemonMvc** owns the catalogue SQLite database and exposes read-only JSON endpoints under `/api/catalog`.
-- **PokeMarketApi** consumes the catalogue over HTTP and owns its own accounts, portfolio, seller listings and community messages.
+- **PokemonMvc** owns the catalogue SQLite database, public catalogue and admin management dashboard. It exposes read-only JSON endpoints under `/api/catalog`.
+- **PokeMarketApi** consumes the catalogue over HTTP and owns marketplace accounts, collections, wishlist, seller listings, reviews and community messages.
 
 ## Run both projects in Visual Studio
 
@@ -19,30 +19,39 @@ A .NET 10 solution containing two separate ASP.NET Core MVC applications.
 
 ## Create the catalogue administrator
 
-Catalogue create/edit/delete pages require the **Admin** role. For local development, set these environment variables in Visual Studio's PokemonMvc launch profile (Project → Properties → Debug → Open debug launch profiles UI):
+Catalogue create/edit/delete pages and the admin dashboard require the **Admin** role. For local development, set these environment variables in Visual Studio's PokemonMvc launch profile:
 
 - `POKEMARKET_ADMIN_EMAIL`: your chosen admin email
 - `POKEMARKET_ADMIN_PASSWORD`: a strong password with at least 8 characters and a digit
 
-Restart PokemonMvc after setting them. The app creates that account and assigns the Admin role on startup. Then sign in at `/Identity/Account/Login`. Do not commit real credentials to GitHub.
+Restart PokemonMvc after setting them. The app creates that account and assigns the Admin role on startup. The development fallback is `admin@pokedex.com` / `PokedexAdmin123!`. Do not use fallback credentials in production or commit real credentials to GitHub.
 
-## Marketplace features
+## Features
 
-- Browse and search catalogue cards and sets.
-- Sign up/sign in with ASP.NET Core Identity.
-- Add/remove owned cards from a private portfolio.
-- Create community seller listings.
-- Browse registered members and exchange private messages.
-- Convert QAR display prices using a live exchange-rate endpoint when it is reachable. If the rate service is unavailable, the page remains in QAR.
-- Community listings are demonstrations only; no payments or checkout are processed.
+### PokemonMvc catalogue
+- Public catalogue with product search, set filtering, sorting by name, set and price, and pagination.
+- Admin-only product create, edit and delete with photo URL fields.
+- Admin dashboard with catalogue counts, product mix, estimated catalogue value, top sets and recently added products.
 
-## Important demo limitations
+### PokeMarketApi marketplace
+- User registration and sign-in.
+- Browse, search, filter, sort and paginate catalogue products.
+- Private collection tracker with quantity, card condition and PSA grade.
+- Wishlist / saved favourites.
+- Seller listings with edit, delete, condition, grade and Available/Sold status controls.
+- Product star ratings and written reviews; one review per signed-in account per product, editable by posting again.
+- Product price-history chart using clearly labelled illustrative demo snapshots.
+- Registered-member community and private messages.
+- Currency display conversion when the external exchange-rate service is reachable.
+
+## Demo limitations
 
 - Seed catalogue prices are illustrative sample values, not verified live market quotes.
-- Historical price charts and percentage movements are intentionally not fabricated. They remain unavailable until a legitimate price-history data provider is configured.
-- This project does not provide payments, escrow, shipping, PSA verification, or settlement.
-- The community directory shows registered accounts in this local demo. Do not use real personal information in a public deployment without adding privacy and abuse controls.
+- Price-history snapshots are generated demo values based on catalogue prices, not verified market transactions.
+- Community listings are demonstrations only; no payments, checkout, escrow, shipping or settlement are processed.
+- PSA grade labels are user-entered information and are not verified by PSA or another grading service.
+- The community directory uses local demo accounts. Add privacy, moderation and abuse controls before any public deployment.
 
 ## Local database note
 
-PokemonMvc stores catalogue cards in `pokemonmvc.db` and admin accounts in `pokemonmvc-auth.db`. PokeMarketApi stores marketplace accounts, portfolio items, seller listings, favourites and messages in `pokemarket.db`. The two apps do not share a database. If you already ran an older version of this project before Identity was added, back up any catalogue data before considering a database reset. Do not delete either database if you have manually entered cards you need to keep.
+PokemonMvc stores catalogue cards in `pokemonmvc.db` and admin accounts in `pokemonmvc-auth.db`. PokeMarketApi stores marketplace accounts, portfolio items, seller listings, favourites, reviews, price snapshots and messages in `pokemarket.db`. The two apps do not share a database. Startup compatibility checks add new marketplace columns/tables to older local SQLite databases. Back up your databases before manual schema changes or resets; do not delete them if you have data you need.
