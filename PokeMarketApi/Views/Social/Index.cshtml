@@ -1,0 +1,20 @@
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{ ViewData["Title"] = "Community"; }
+<section class="hero">
+    <p class="eyebrow">POKÉMARKET COMMUNITY</p>
+    <h1>Collectors connect here.</h1>
+    <p>Find other registered PokéMarket members and start a private conversation.</p>
+</section>
+<h2>Members</h2>
+@if (!Model.Any()) { <p class="notice">No other members have registered yet. Check back after more collectors join.</p> }
+<div class="grid">
+@foreach (var person in Model)
+{
+    <article class="product">
+        <div class="avatar">@(string.IsNullOrWhiteSpace(person.Email) ? "P" : person.Email[..1].ToUpper())</div>
+        <b>@(person.Email ?? "PokéMarket member")</b>
+        <small>Community member</small>
+        <a class="btn" href="/Social/Chat?userId=@person.Id">Message</a>
+    </article>
+}
+</div>
