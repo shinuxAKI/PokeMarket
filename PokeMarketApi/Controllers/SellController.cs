@@ -17,34 +17,50 @@ public class SellController(MarketContext db, UserManager<IdentityUser> users, I
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string productName, string productType, string? imageUrl,
-        string grade, string condition, decimal priceQar, IFormFile? photo)
+    public async Task<IActionResult> Create(string productName, string productType, string grade,
+        string condition, decimal priceQar, IFormFile? photo)
     {
         productName = (productName ?? "").Trim();
         if (productName.Length == 0 || productName.Length > 120 || priceQar <= 0 || priceQar > 1000000)
             return BadRequest("Enter a product name and a valid positive QAR price.");
+
+        string? imageUrl = null;
         if (photo is { Length: > 0 })
         {
-            if (photo.Length > 5 * 1024 * 1024) return BadRequest("Image must be 5 MB or smaller.");
+            if (photo.Length > 5 * 1024 * 1024)
+                return BadRequest("Image must be 5 MB or smaller.");
+
             var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-            if (!new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(extension))
-                return BadRequest("Use a JPG, PNG or WEBP image.");
-            var folder = Path.Combine(environment.WebRootPath, "uploads");
+            var allowedTypes = new Dictionary<string, string>
+            {
+                [".jpg"] = "image/jpeg",
+                [".jpeg"] = "image/jpeg",
+                [".png"] = "image/png",
+                [".webp"] = "image/webp"
+            };
+            if (!allowedTypes.TryGetValue(extension, out var expectedType) ||
+                !string.Equals(photo.ContentType, expectedType, StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Upload a JPG, PNG or WEBP image file.");
+
+            var webRoot = environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+            var folder = Path.Combine(webRoot, "uploads");
             Directory.CreateDirectory(folder);
-            var filename = Guid.NewGuid() + extension;
-            await using var stream = System.IO.File.Create(Path.Combine(folder, filename));
-            await photo.CopyToAsync(stream);
+            var filename = Guid.NewGuid().ToString("N") + extension;
+            var fullPath = Path.Combine(folder, filename);
+            await using (var stream = System.IO.File.Create(fullPath))
+                await photo.CopyToAsync(stream);
             imageUrl = "/uploads/" + filename;
         }
-        else if (!string.IsNullOrWhiteSpace(imageUrl))
-        {
-            if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri) || imageUri.Scheme != Uri.UriSchemeHttps)
-                return BadRequest("Image URL must use HTTPS.");
-        }
+
         db.SellerListings.Add(new SellerListing
         {
-            SellerId = users.GetUserId(User)!, ProductName = productName, ProductType = productType,
-            ImageUrl = imageUrl, Grade = grade, Condition = condition, PriceQar = priceQar
+            SellerId = users.GetUserId(User)!,
+            ProductName = productName,
+            ProductType = productType,
+            ImageUrl = imageUrl,
+            Grade = grade,
+            Condition = condition,
+            PriceQar = priceQar
         });
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
@@ -71,7 +87,18 @@ public class SellController(MarketContext db, UserManager<IdentityUser> users, I
     public async Task<IActionResult> Delete(int id)
     {
         var listing = await db.SellerListings.FirstOrDefaultAsync(x => x.Id == id && x.SellerId == users.GetUserId(User));
-        if (listing != null) { db.SellerListings.Remove(listing); await db.SaveChangesAsync(); }
+        if (listing != null)
+        {
+            if (!string.IsNullOrWhiteSpace(listing.ImageUrl) && listing.ImageUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+            {
+                var webRoot = environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+                var filename = Path.GetFileName(listing.ImageUrl);
+                var imagePath = Path.Combine(webRoot, "uploads", filename);
+                if (System.IO.File.Exists(imagePath)) System.IO.File.Delete(imagePath);
+            }
+            db.SellerListings.Remove(listing);
+            await db.SaveChangesAsync();
+        }
         return RedirectToAction(nameof(Index));
     }
 }
