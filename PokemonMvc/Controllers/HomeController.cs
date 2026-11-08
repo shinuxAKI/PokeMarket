@@ -1,1 +1,18 @@
-using Microsoft.AspNetCore.Mvc;using PokemonMvc.Data;using Microsoft.EntityFrameworkCore;namespace PokemonMvc.Controllers;public class HomeController(PokemonContext db):Controller{public async Task<IActionResult> Index()=>View(await db.Cards.OrderByDescending(x=>x.MarketPriceQar).Take(8).ToListAsync());}
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PokemonMvc.Data;
+
+namespace PokemonMvc.Controllers;
+
+public class HomeController(PokemonContext db) : Controller
+{
+    public async Task<IActionResult> Index()
+    {
+        var cards = await db.Cards
+            .OrderBy(x => x.ProductType)
+            .ThenBy(x => x.Name)
+            .ToListAsync();
+
+        return View(cards);
+    }
+}
