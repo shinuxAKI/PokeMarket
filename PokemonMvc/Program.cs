@@ -7,17 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-var databaseProvider = builder.Configuration["Database:Provider"] ?? "Sqlite";
 var catalogueConnection = builder.Configuration.GetConnectionString("PokemonContext")
     ?? throw new InvalidOperationException("Connection string 'PokemonContext' is missing.");
 var identityConnection = builder.Configuration.GetConnectionString("AccessConnection")
     ?? throw new InvalidOperationException("Connection string 'AccessConnection' is missing.");
 
 builder.Services.AddDbContext<PokemonContext>(options =>
-    ConfigureDatabase(options, databaseProvider, catalogueConnection));
+    options.UseSqlServer(catalogueConnection));
 
 builder.Services.AddDbContext<CatalogueIdentityContext>(options =>
-    ConfigureDatabase(options, databaseProvider, identityConnection));
+    options.UseSqlServer(identityConnection));
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
@@ -35,13 +34,13 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var cardsDb = services.GetRequiredService<PokemonContext>();
-    cardsDb.Database.EnsureCreated();
+    await cardsDb.Database.MigrateAsync();
     SeedData.Initialize(cardsDb);
 
     var identityDb = services.GetRequiredService<CatalogueIdentityContext>();
-    identityDb.Database.EnsureCreated();
+    await identityDb.Database.MigrateAsync();
 
-    // Development-only fallback credentials make a fresh local checkout usable.
+    // Development-only fallback credentials make a fresh development database usable.
     // Environment variables override these values when configured.
     if (app.Environment.IsDevelopment())
     {
@@ -92,24 +91,3 @@ app.MapRazorPages();
 app.MapControllers();
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.Run();
-
-static void ConfigureDatabase(
-    DbContextOptionsBuilder options,
-    string provider,
-    string connectionString)
-{
-    if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-    {
-        options.UseSqlServer(connectionString);
-        return;
-    }
-
-    if (provider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
-    {
-        options.UseSqlite(connectionString);
-        return;
-    }
-
-    throw new InvalidOperationException(
-        $"Unsupported database provider '{provider}'. Use 'Sqlite' or 'SqlServer'.");
-}
