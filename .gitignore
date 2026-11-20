@@ -4,13 +4,6 @@
 *.user
 *.suo
 
-# Local SQLite databases and journal files
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
-
 # Local-only configuration and secrets
 appsettings.*.local.json
 secrets.json
