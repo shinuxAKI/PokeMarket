@@ -7,35 +7,36 @@ PokéMarket is a .NET 10 solution containing two cooperating ASP.NET Core applic
 - **PokemonMvc** — catalogue website and catalogue JSON endpoints under `/api/catalog`. It owns the card catalogue and catalogue administrator Identity context.
 - **PokeMarketApi** — the customer-facing marketplace web application. It consumes the catalogue through `CatalogClient` and owns marketplace accounts, collections, wishlists, seller listings, reviews, price snapshots and community messages.
 
-> Architecture note: despite its project name, the current `PokeMarketApi` project is an MVC marketplace application, not yet a standalone REST-only API service. The current JSON catalogue endpoints are hosted by `PokemonMvc`. Do not assume public developer API-key management is already implemented; that remains future work.
+> Architecture note: despite its project name, the current `PokeMarketApi` project is an MVC marketplace application, not yet a standalone REST-only API service. The current JSON catalogue endpoints are hosted by `PokemonMvc`. Public developer API-key management remains future work.
 
 ## Open and run in Visual Studio
 
 1. Open `PokeMarket.sln` in Visual Studio 2026 with the .NET 10 SDK installed.
 2. Right-click the solution → **Properties** → **Startup Project**.
 3. Select **Multiple startup projects** and set both `PokemonMvc` and `PokeMarketApi` to **Start**.
-4. Press F5.
-5. Default local addresses:
+4. Configure the SQL Server connection strings in both appsettings files.
+5. Generate and apply the three EF Core migrations as described in [DATABASE_SETUP.md](DATABASE_SETUP.md).
+6. Press F5.
+7. Default application addresses:
    - Catalogue: `http://localhost:5165` (HTTPS: `https://localhost:7165`)
    - Marketplace: `https://localhost:7265` (HTTP: `http://localhost:5265`)
-6. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this address from `PokeMarketApi/appsettings.json`.
+8. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this address from `PokeMarketApi/appsettings.json`.
 
-## Database modes
+## SQL Server database architecture
 
-Both projects now support **SQLite for immediate local development** and **SQL Server for your school environment**. The default provider remains SQLite so a fresh checkout can run without requiring the school's SQL Server.
+**Both projects use Microsoft SQL Server only.** SQLite packages, providers, configuration and SQLite-specific database initialization code have been removed.
 
-- `Database:Provider = Sqlite` uses the included local SQLite configuration.
-- `Database:Provider = SqlServer` uses the SQL Server EF Core provider and the connection strings in the corresponding appsettings file.
+The solution currently keeps three DbContexts / physical databases to preserve the existing separation:
 
-The current code has three DbContexts / physical databases to preserve its existing separation:
-
-| Application | DbContext | Default local database |
+| Application | DbContext | SQL Server database |
 |---|---|---|
-| PokemonMvc | `PokemonContext` | `pokemonmvc.db` |
-| PokemonMvc | `CatalogueIdentityContext` | `pokemonmvc-auth.db` |
-| PokeMarketApi | `MarketContext` | `pokemarket.db` |
+| PokemonMvc | `PokemonContext` | `PokeMarketCatalogDb` |
+| PokemonMvc | `CatalogueIdentityContext` | `PokeMarketCatalogueIdentityDb` |
+| PokeMarketApi | `MarketContext` | `PokeMarketDb` |
 
-Do not point different contexts at one database until their schema creation has been deliberately consolidated. See [DATABASE_SETUP.md](DATABASE_SETUP.md) before switching providers.
+The committed connection strings contain `YOUR_SCHOOL_SQL_SERVER` placeholders. Replace these with the actual SQL Server instance supplied by your teacher. Do not commit real passwords or credentials. See [DATABASE_SETUP.md](DATABASE_SETUP.md) for the migration commands and authentication guidance.
+
+**Migrations must be generated before running the applications for the first time.** Both applications call `Database.Migrate()` at startup; that applies migrations already present in the project, but does not generate them. Use the Package Manager Console commands in DATABASE_SETUP.md for all three contexts.
 
 ## Catalogue administrator (development only)
 
@@ -76,6 +77,6 @@ Restart PokemonMvc after setting them. The development fallback is `admin@pokede
 ## Important safety notes
 
 - Never commit production passwords, API keys or private connection strings.
-- Keep a backup of local database files before schema changes.
+- Back up school databases before schema changes.
 - Do not delete or recreate databases as a troubleshooting shortcut.
 - Review build and runtime results locally before deploying to IIS.
