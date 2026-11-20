@@ -1,32 +1,53 @@
 # PokéMarket
 
-A .NET 10 solution containing two separate ASP.NET Core MVC applications.
+PokéMarket is a .NET 10 solution containing two cooperating ASP.NET Core applications. The existing application structure is preserved so current catalogue and marketplace features are not discarded.
 
-## Projects
+## Solution projects
 
-- **PokemonMvc** owns the catalogue SQLite database, public catalogue and admin management dashboard. It exposes read-only JSON endpoints under `/api/catalog`.
-- **PokeMarketApi** consumes the catalogue over HTTP and owns marketplace accounts, collections, wishlist, seller listings, reviews and community messages.
+- **PokemonMvc** — catalogue website and catalogue JSON endpoints under `/api/catalog`. It owns the card catalogue and catalogue administrator Identity context.
+- **PokeMarketApi** — the customer-facing marketplace web application. It consumes the catalogue through `CatalogClient` and owns marketplace accounts, collections, wishlists, seller listings, reviews, price snapshots and community messages.
 
-## Run both projects in Visual Studio
+> Architecture note: despite its project name, the current `PokeMarketApi` project is an MVC marketplace application, not yet a standalone REST-only API service. The current JSON catalogue endpoints are hosted by `PokemonMvc`. Public developer API-key management remains future work.
 
-1. Open `PokeMarket.sln` in Visual Studio 2026.
+## Open and run in Visual Studio
+
+1. Open `PokeMarket.sln` in Visual Studio 2026 with the .NET 10 SDK installed.
 2. Right-click the solution → **Properties** → **Startup Project**.
-3. Choose **Multiple startup projects** and set both `PokemonMvc` and `PokeMarketApi` to **Start**.
-4. Press F5. Stable local addresses are:
-   - Catalogue: `http://localhost:5165` (HTTPS also available on 7165)
-   - Marketplace: `https://localhost:7265` (HTTP also available on 5265)
-5. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this URL from `PokeMarketApi/appsettings.json`.
+3. Select **Multiple startup projects** and set both `PokemonMvc` and `PokeMarketApi` to **Start**.
+4. Configure the SQL Server connection strings in both appsettings files.
+5. Generate and apply the three EF Core migrations as described in [DATABASE_SETUP.md](DATABASE_SETUP.md).
+6. Press F5.
+7. Default application addresses:
+   - Catalogue: `http://localhost:5165` (HTTPS: `https://localhost:7165`)
+   - Marketplace: `https://localhost:7265` (HTTP: `http://localhost:5265`)
+8. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this address from `PokeMarketApi/appsettings.json`.
 
-## Create the catalogue administrator
+## SQL Server database architecture
 
-Catalogue create/edit/delete pages and the admin dashboard require the **Admin** role. For local development, set these environment variables in Visual Studio's PokemonMvc launch profile:
+**Both projects use Microsoft SQL Server only.** SQLite packages, providers, configuration and SQLite-specific database initialization code have been removed.
+
+The solution currently keeps three DbContexts / physical databases to preserve the existing separation:
+
+| Application | DbContext | SQL Server database |
+|---|---|---|
+| PokemonMvc | `PokemonContext` | `PokeMarketCatalogDb` |
+| PokemonMvc | `CatalogueIdentityContext` | `PokeMarketCatalogueIdentityDb` |
+| PokeMarketApi | `MarketContext` | `PokeMarketDb` |
+
+The committed connection strings contain `YOUR_SCHOOL_SQL_SERVER` placeholders. Replace these with the actual SQL Server instance supplied by your teacher. Do not commit real passwords or credentials. See [DATABASE_SETUP.md](DATABASE_SETUP.md) for the migration commands and authentication guidance.
+
+**Migrations must be generated before running the applications for the first time.** Both applications call `Database.Migrate()` at startup; that applies migrations already present in the project, but does not generate them. Use the Package Manager Console commands in DATABASE_SETUP.md for all three contexts.
+
+## Catalogue administrator (development only)
+
+Catalogue create/edit/delete pages and the admin dashboard require the **Admin** role. Set these environment variables in the PokemonMvc launch profile:
 
 - `POKEMARKET_ADMIN_EMAIL`: your chosen admin email
 - `POKEMARKET_ADMIN_PASSWORD`: a strong password with at least 8 characters and a digit
 
-Restart PokemonMvc after setting them. The app creates that account and assigns the Admin role on startup. The development fallback is `admin@pokedex.com` / `PokedexAdmin123!`. Do not use fallback credentials in production or commit real credentials to GitHub.
+Restart PokemonMvc after setting them. The development fallback is `admin@pokedex.com` / `PokedexAdmin123!`. Do not use fallback credentials in production or commit real credentials to GitHub.
 
-## Features
+## Current features
 
 ### PokemonMvc catalogue
 - Public catalogue with product search, set filtering, sorting by name, set and price, and pagination.
@@ -39,19 +60,23 @@ Restart PokemonMvc after setting them. The app creates that account and assigns 
 - Private collection tracker with quantity, card condition and PSA grade.
 - Wishlist / saved favourites.
 - Seller listings with edit, delete, condition, grade and Available/Sold status controls.
-- Product star ratings and written reviews; one review per signed-in account per product, editable by posting again.
+- Product star ratings and written reviews.
 - Product price-history chart using clearly labelled illustrative demo snapshots.
 - Registered-member community and private messages.
 - Currency display conversion when the external exchange-rate service is reachable.
 
-## Demo limitations
+## Demo limitations and future work
 
 - Seed catalogue prices are illustrative sample values, not verified live market quotes.
 - Price-history snapshots are generated demo values based on catalogue prices, not verified market transactions.
 - Community listings are demonstrations only; no payments, checkout, escrow, shipping or settlement are processed.
 - PSA grade labels are user-entered information and are not verified by PSA or another grading service.
-- The community directory uses local demo accounts. Add privacy, moderation and abuse controls before any public deployment.
+- Add privacy, moderation and abuse controls before any public deployment.
+- A standalone public developer API, API access request workflow, API-key issuance/rotation/revocation and API-key authentication still need implementation.
 
-## Local database note
+## Important safety notes
 
-PokemonMvc stores catalogue cards in `pokemonmvc.db` and admin accounts in `pokemonmvc-auth.db`. PokeMarketApi stores marketplace accounts, portfolio items, seller listings, favourites, reviews, price snapshots and messages in `pokemarket.db`. The two apps do not share a database. Startup compatibility checks add new marketplace columns/tables to older local SQLite databases. Back up your databases before manual schema changes or resets; do not delete them if you have data you need.
+- Never commit production passwords, API keys or private connection strings.
+- Back up school databases before schema changes.
+- Do not delete or recreate databases as a troubleshooting shortcut.
+- Review build and runtime results locally before deploying to IIS.
