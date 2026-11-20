@@ -27,3 +27,14 @@ jobs:
 
       - name: Build solution
         run: dotnet build PokeMarket.sln --configuration Release --no-restore
+
+      - name: Package complete source ZIP
+        run: git archive --format=zip --prefix=PokeMarket/ HEAD --output=PokeMarket_Complete.zip
+
+      - name: Upload source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeMarket_Complete
+          path: PokeMarket_Complete.zip
+          if-no-files-found: error
+          retention-days: 30
