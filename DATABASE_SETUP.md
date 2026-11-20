@@ -1,98 +1,96 @@
-# PokéMarket database setup
+# PokéMarket SQL Server setup
 
-## Current DbContexts and databases
+PokéMarket is configured for **Microsoft SQL Server only**. SQLite packages, providers, connection strings and SQLite-specific initialization code have been removed from both applications.
 
-The existing solution intentionally has three DbContexts. Keep them separate until a deliberate schema consolidation is designed and tested.
+## SQL Server databases and DbContexts
 
-| Project | DbContext | Default SQLite file | Purpose |
+The current solution deliberately keeps its three existing DbContexts separate:
+
+| Project | DbContext | SQL Server database | Purpose |
 |---|---|---|---|
-| PokemonMvc | PokemonContext | pokemonmvc.db | Pokémon cards and sealed products |
-| PokemonMvc | CatalogueIdentityContext | pokemonmvc-auth.db | Catalogue admin/user Identity |
-| PokeMarketApi | MarketContext | pokemarket.db | Marketplace Identity, collections, listings, favourites, reviews, snapshots and messages |
+| PokemonMvc | PokemonContext | PokeMarketCatalogDb | Pokémon cards and sealed products |
+| PokemonMvc | CatalogueIdentityContext | PokeMarketCatalogueIdentityDb | Catalogue admin/user Identity |
+| PokeMarketApi | MarketContext | PokeMarketDb | Marketplace Identity, collections, listings, favourites, reviews, snapshots and messages |
 
-The two applications are separate processes. Their database provider is selected independently in each appsettings file.
+Do not point multiple contexts at one database unless their schemas are deliberately consolidated and reviewed.
 
-## Default local mode (SQLite)
+## Configure the school SQL Server
 
-The repository is configured to run locally without a SQL Server installation:
-
-**PokemonMvc/appsettings.json**
-- Database.Provider: Sqlite
-- ConnectionStrings.PokemonContext: Data Source=pokemonmvc.db
-- ConnectionStrings.AccessConnection: Data Source=pokemonmvc-auth.db
-
-**PokeMarketApi/appsettings.json**
-- Database.Provider: Sqlite
-- ConnectionStrings.MarketDb: Data Source=pokemarket.db
-
-The files are created beside the running application according to the process working directory. Keep backups before changing the schema.
-
-## Switch to SQL Server at school
-
-The SQL Server EF Core provider is included in both project files. When you have the server details from your teacher, set the provider to `SqlServer` in both appsettings files.
-
-Example only — replace `YOUR_SERVER_NAME` with the actual SQL Server instance name:
+The committed appsettings files contain placeholders. Replace `YOUR_SCHOOL_SQL_SERVER` with the server/instance name supplied by your teacher.
 
 **PokemonMvc/appsettings.json**
-```json
-{
-  "Database": { "Provider": "SqlServer" },
-  "ConnectionStrings": {
-    "PokemonContext": "Server=YOUR_SERVER_NAME;Database=PokeMarketCatalogDb;Trusted_Connection=True;TrustServerCertificate=True;",
-    "AccessConnection": "Server=YOUR_SERVER_NAME;Database=PokeMarketCatalogueIdentityDb;Trusted_Connection=True;TrustServerCertificate=True;"
-  },
-  "AllowedHosts": "*"
-}
-```
+- `ConnectionStrings:PokemonContext`
+- `ConnectionStrings:AccessConnection`
 
 **PokeMarketApi/appsettings.json**
-```json
-{
-  "Database": { "Provider": "SqlServer" },
-  "ConnectionStrings": {
-    "MarketDb": "Server=YOUR_SERVER_NAME;Database=PokeMarketDb;Trusted_Connection=True;TrustServerCertificate=True;"
-  },
-  "CatalogApi": { "BaseUrl": "http://localhost:5165/" },
-  "AllowedHosts": "*"
-}
+- `ConnectionStrings:MarketDb`
+
+The examples currently use Windows Integrated Authentication:
+
+```text
+Server=YOUR_SCHOOL_SQL_SERVER;Database=PokeMarketCatalogDb;Trusted_Connection=True;TrustServerCertificate=True;
 ```
 
-Use the actual authentication method required by the school server. If SQL authentication is required, obtain the credentials from your teacher and keep them in Visual Studio user secrets or environment variables. Do not commit them.
+If the school uses SQL Server authentication, ask your teacher for the required authentication method and store the username/password in Visual Studio user secrets or environment variables. Never commit real credentials to GitHub.
 
-## Important schema / migration warning
+The application now expects SQL Server to be reachable at startup. It will not run against the previous local SQLite files.
 
-The current code uses `EnsureCreated()` for its existing local database initialization and contains compatibility SQL for older marketplace SQLite files. `EnsureCreated()` is not a substitute for an EF Core migrations workflow and should not be mixed casually with migrations on the same database.
+## Generate migrations in Visual Studio
 
-Before using an existing school database or deploying to production:
+**Important:** migrations have not been generated in this repository yet. Generate and review them from the current entity models before running either website against the school databases.
 
-1. Back up the database.
-2. Confirm the target database names and permissions.
-3. Review the current entity models and the schema expected by each DbContext.
-4. Generate and review a baseline migration for each DbContext using Visual Studio Package Manager Console.
-5. Use the correct project as both the Default project and Startup project for each migration command.
-6. Do not run `EnsureCreated()` against a database managed by migrations. Replace the initialization approach with `Database.Migrate()` only after migrations have been generated and reviewed.
+1. Open `PokeMarket.sln` in Visual Studio.
+2. Restore NuGet packages.
+3. Open **Tools → NuGet Package Manager → Package Manager Console**.
+4. Set the Default project as shown for each command.
+5. Run the commands below one context at a time.
 
-### Package Manager Console commands
+### 1. Catalogue cards
 
-For the catalogue database context:
+Default project: `PokemonMvc`
 
 ```powershell
 Add-Migration InitialCatalogueSchema -Project PokemonMvc -StartupProject PokemonMvc -Context PokemonContext
 Update-Database -Project PokemonMvc -StartupProject PokemonMvc -Context PokemonContext
 ```
 
-For the catalogue Identity database context:
+### 2. Catalogue Identity
+
+Default project: `PokemonMvc`
 
 ```powershell
 Add-Migration InitialCatalogueIdentitySchema -Project PokemonMvc -StartupProject PokemonMvc -Context CatalogueIdentityContext
 Update-Database -Project PokemonMvc -StartupProject PokemonMvc -Context CatalogueIdentityContext
 ```
 
-For the marketplace database context:
+### 3. Marketplace and marketplace Identity
+
+Default project: `PokeMarketApi`
 
 ```powershell
 Add-Migration InitialMarketplaceSchema -Project PokeMarketApi -StartupProject PokeMarketApi -Context MarketContext
 Update-Database -Project PokeMarketApi -StartupProject PokeMarketApi -Context MarketContext
 ```
 
-These are schema-generation instructions, not evidence that migrations have already been generated or applied. Review each generated migration before running Update-Database, especially when connecting to a school database with existing data.
+The `Update-Database` commands create/update the configured databases and tables. Confirm that the connection strings point to the intended school databases before running them. Back up any database that already contains data.
+
+## Startup behavior
+
+Both applications call `Database.Migrate()` at startup. This applies migrations that have already been generated and included in the project. It does **not** create the required schema if no migrations exist, so generate the three initial migrations above before launching the websites.
+
+The catalogue seed routine runs after the catalogue migration. The development admin account is created only in Development and can be configured using `POKEMARKET_ADMIN_EMAIL` and `POKEMARKET_ADMIN_PASSWORD`.
+
+## Build and verify
+
+1. Replace the server placeholders with the real school SQL Server instance.
+2. Confirm the Windows account running Visual Studio/IIS has permission to connect and create/update the target databases, or ask your teacher to create the databases and grant permissions.
+3. Generate and apply all three migrations.
+4. Rebuild the solution.
+5. Start both applications.
+6. Test `http://localhost:5165/api/catalog/cards` and confirm the marketplace can retrieve catalogue data.
+
+A successful local build does not prove that the school SQL Server is reachable. Test connectivity on the school network with the actual server details.
+
+## IIS deployment
+
+Use the same SQL Server connection strings through environment variables or deployment configuration, not committed source files. Ensure the IIS application-pool identity has the database permissions required by the school's deployment policy.
