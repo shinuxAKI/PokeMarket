@@ -23,7 +23,7 @@ public sealed class PokemonContextFactory : IDesignTimeDbContextFactory<PokemonC
 
     internal static IConfiguration BuildConfiguration() =>
         new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)
             .AddEnvironmentVariables()
             .Build();
