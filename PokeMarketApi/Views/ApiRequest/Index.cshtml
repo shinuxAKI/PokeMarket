@@ -1,59 +1,106 @@
-@model PokeMarketApi.Models.ApiRequestViewModel
+@model PokeMarketApi.Models.ApiRequestPageViewModel
 @{
     ViewData["Title"] = "API Request";
 }
 <section class="api-request-page">
     <div class="eyebrow">POKÉMARKET DEVELOPERS</div>
-    <h1>API Access Request</h1>
-    <p>Tell us a little about your project. After submitting, your personal API endpoint and key will be generated.</p>
+    <h1>API Access</h1>
+    <p>Submit a request for access to the PokéMarket card catalogue API. An administrator reviews each request before issuing a key.</p>
 
-    @if (Model.Submitted && !string.IsNullOrWhiteSpace(Model.ApiKey))
+    @if (TempData["ApiRequestMessage"] is string message)
     {
-        <div class="api-result">
-            <div class="api-result-icon">✓</div>
-            <h2>Your API credentials are ready!</h2>
-            <p>Keep your API key private. It is shown only once and cannot be recovered later.</p>
-            <label>API URL</label>
-            <div class="credential-row">
-                <code id="apiUrl">@Model.ApiUrl</code>
-                <button type="button" class="copy-button" onclick="copyCredential('apiUrl', this)">Copy</button>
-            </div>
-            <label>API Key</label>
-            <div class="credential-row">
-                <code id="apiKey">@Model.ApiKey</code>
-                <button type="button" class="copy-button" onclick="copyCredential('apiKey', this)">Copy</button>
-            </div>
-            <div class="api-warning">Your key is stored securely as a hash. Copy it now and save it somewhere safe.</div>
-            <h3>How to use it</h3>
-            <p>Send a GET request to the API URL and include this HTTP header:</p>
-            <pre><code>X-API-Key: YOUR_API_KEY</code></pre>
-            <a class="btn" href="/ApiRequest">Generate another key</a>
-        </div>
+        <div class="api-notice">@message</div>
     }
-    else
+
+    <h2>Your requests</h2>
+    @if (Model.Requests.Count == 0)
     {
-        <form asp-action="Index" method="post" class="api-request-form">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <label asp-for="ApplicationName"></label>
-            <input asp-for="ApplicationName" placeholder="e.g. My Pokémon Collection App" />
-            <span asp-validation-for="ApplicationName" class="text-danger"></span>
-
-            <label asp-for="ContactEmail"></label>
-            <input asp-for="ContactEmail" placeholder="you@example.com" />
-            <span asp-validation-for="ContactEmail" class="text-danger"></span>
-
-            <label asp-for="Website"></label>
-            <input asp-for="Website" placeholder="https://example.com" />
-            <span asp-validation-for="Website" class="text-danger"></span>
-
-            <label asp-for="Purpose"></label>
-            <textarea asp-for="Purpose" rows="5" placeholder="Describe what you're building and how you'll use the PokéMarket card catalogue..."></textarea>
-            <span asp-validation-for="Purpose" class="text-danger"></span>
-
-            <button type="submit">Submit API Request →</button>
-        </form>
+        <p>You have not submitted an API access request yet.</p>
     }
+    @foreach (var request in Model.Requests)
+    {
+        <article class="api-user-request">
+            <div class="api-admin-heading">
+                <div><h3>@request.ApplicationName</h3><small>Submitted @request.CreatedAt.ToLocalTime().ToString("g")</small></div>
+                <span class="api-status status-@request.Status.ToLowerInvariant()">@request.Status</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(request.AdminNotes))
+            {
+                <p><strong>Administrator note:</strong> @request.AdminNotes</p>
+            }
+            @if (request.Status == "Pending")
+            {
+                <p>Your request is waiting for administrator approval. No API key has been issued yet.</p>
+            }
+            else if (request.Status == "Rejected")
+            {
+                <p>This request was not approved. You can submit a new request below if your project details have changed.</p>
+            }
+            else if (request.Status == "Revoked")
+            {
+                <p>This API key has been revoked and can no longer be used.</p>
+            }
+            else if (request.Status == "Approved")
+            {
+                <p>Your API access is approved.</p>
+                <label>API URL</label>
+                <div class="credential-row">
+                    <code id="apiUrl-@request.Id">@Model.ApiUrl</code>
+                    <button type="button" class="copy-button" onclick="copyCredential('apiUrl-@request.Id', this)">Copy</button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(request.ApiKey))
+                {
+                    <label>API Key</label>
+                    <div class="credential-row">
+                        <code id="apiKey-@request.Id">@request.ApiKey</code>
+                        <button type="button" class="copy-button" onclick="copyCredential('apiKey-@request.Id', this)">Copy</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="api-warning">This key was issued by an older version and cannot be displayed. Rotate it to create a new key you can manage here.</div>
+                }
+                <p>Include the following header in your GET request:</p>
+                <pre><code>X-API-Key: YOUR_API_KEY</code></pre>
+                <div class="api-admin-actions">
+                    <form asp-action="Rotate" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@request.Id" />
+                        <button type="submit">Rotate API key</button>
+                    </form>
+                    <form asp-action="Revoke" method="post" onsubmit="return confirm('Revoke this API key? Applications using it will stop working.');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@request.Id" />
+                        <button type="submit" class="api-danger-button">Revoke access</button>
+                    </form>
+                </div>
+            }
+        </article>
+    }
+
+    <div class="api-request-divider"></div>
+    <h2>Request API access</h2>
+    <form asp-action="Index" method="post" class="api-request-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <label asp-for="Form.ApplicationName"></label>
+        <input asp-for="Form.ApplicationName" placeholder="e.g. My Pokémon Collection App" />
+        <span asp-validation-for="Form.ApplicationName" class="text-danger"></span>
+
+        <label asp-for="Form.ContactEmail"></label>
+        <input asp-for="Form.ContactEmail" placeholder="you@example.com" />
+        <span asp-validation-for="Form.ContactEmail" class="text-danger"></span>
+
+        <label asp-for="Form.Website"></label>
+        <input asp-for="Form.Website" placeholder="https://example.com" />
+        <span asp-validation-for="Form.Website" class="text-danger"></span>
+
+        <label asp-for="Form.Purpose"></label>
+        <textarea asp-for="Form.Purpose" rows="5" placeholder="Describe what you're building and how you'll use the PokéMarket card catalogue..."></textarea>
+        <span asp-validation-for="Form.Purpose" class="text-danger"></span>
+
+        <button type="submit">Submit API Request →</button>
+    </form>
 </section>
 @section Scripts {
 <script>
