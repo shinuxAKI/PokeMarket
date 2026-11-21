@@ -39,8 +39,6 @@ public class ReviewsController(MarketContext db, UserManager<IdentityUser> users
         await db.SaveChangesAsync();
 
         TempData["ReviewMessage"] = "Your review has been saved.";
-        return RedirectToAction("Details", "Products", new { id = catalogCardId, area = "" }) is RedirectToActionResult redirect
-            ? Redirect(Url.Action("Details", "Products", new { id = catalogCardId }) + "#reviews")
-            : Redirect("/Products/Details/" + catalogCardId + "#reviews");
+        return Redirect("/Products/Details/" + catalogCardId + "#reviews");
     }
 }
