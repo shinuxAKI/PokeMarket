@@ -26,6 +26,7 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="productName" value="@Model.Name"><input type="hidden" name="imageUrl" value="@Model.ImageUrl">
             <input type="hidden" name="setName" value="@Model.SetName"><input type="hidden" name="currentValueQar" value="@Model.MarketPriceQar">
+            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)">
             <label>Quantity <input type="number" name="quantity" min="1" max="999" value="1"></label>
             <label>Condition <select name="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option></select></label>
             <select name="grade"><option>Ungraded</option>@for (int i=1;i<=10;i++) { <option>PSA @i</option> }</select>
