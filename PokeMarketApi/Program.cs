@@ -48,6 +48,23 @@ using (var scope = app.Services.CreateScope())
     await EnsureColumn(db, "SellerListings", "Status", "TEXT NOT NULL DEFAULT 'Available'");
 
     db.Database.ExecuteSqlRaw("""
+        CREATE TABLE IF NOT EXISTS ApiClientRegistrations (
+            Id INTEGER NOT NULL CONSTRAINT PK_ApiClientRegistrations PRIMARY KEY AUTOINCREMENT,
+            UserId TEXT NOT NULL,
+            ApplicationName TEXT NOT NULL,
+            ContactEmail TEXT NOT NULL,
+            Website TEXT NULL,
+            Purpose TEXT NOT NULL,
+            KeyHash TEXT NOT NULL,
+            CreatedAt TEXT NOT NULL
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS IX_ApiClientRegistrations_KeyHash
+        ON ApiClientRegistrations (KeyHash);
+        CREATE INDEX IF NOT EXISTS IX_ApiClientRegistrations_UserId
+        ON ApiClientRegistrations (UserId);
+    """);
+
+    db.Database.ExecuteSqlRaw("""
         CREATE TABLE IF NOT EXISTS ConversationMessages (
             Id INTEGER NOT NULL CONSTRAINT PK_ConversationMessages PRIMARY KEY AUTOINCREMENT,
             SenderId TEXT NOT NULL, RecipientId TEXT NOT NULL, Message TEXT NOT NULL, SentAt TEXT NOT NULL
