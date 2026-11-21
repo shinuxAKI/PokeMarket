@@ -4,18 +4,43 @@ A .NET 10 solution containing two separate ASP.NET Core MVC applications.
 
 ## Projects
 
-- **PokemonMvc** owns the catalogue SQLite database, public catalogue and admin management dashboard. It exposes read-only JSON endpoints under `/api/catalog`.
+- **PokemonMvc** owns the catalogue database, public catalogue and admin management dashboard. It exposes read-only JSON endpoints under `/api/catalog`.
 - **PokeMarketApi** consumes the catalogue over HTTP and owns marketplace accounts, collections, wishlist, seller listings, reviews and community messages.
+- Each application uses its own EF Core DbContext and its own SQL Server database. The catalogue Identity store is also kept separate from the catalogue-card store.
+
+## Database provider
+
+Both projects use **Entity Framework Core 10 with the SQL Server provider**. SQLite packages, SQLite connection strings, SQLite-specific PRAGMA statements and SQLite-specific schema-upgrade SQL have been removed.
+
+The connection strings currently contain the placeholder server name `YOUR_SQL_SERVER`. Replace that value with the SQL Server instance provided by your school when it is available:
+
+| Application / context | Database |
+|---|---|
+| PokemonMvc / `PokemonContext` | `PokemonMvcDb` |
+| PokemonMvc / `CatalogueIdentityContext` | `PokeMarketAccessDb` |
+| PokeMarketApi / `MarketContext` | `PokeMarketDb` |
+
+The connection strings are in each project's `appsettings.json`. For a school SQL Server using Windows authentication, the expected format is:
+
+```
+Server=YOUR_SQL_SERVER;Database=YOUR_DATABASE;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True
+```
+
+If the school provides SQL authentication instead, use the credentials supplied by the school through User Secrets or environment-specific configuration. Do not commit real usernames or passwords to GitHub.
+
+The applications currently call EF Core `EnsureCreated` on startup to create each database schema when the configured database is empty. This is compatible with SQL Server and does not require a live database during compilation. It is **not** an EF Core migrations workflow: do not mix `EnsureCreated` with `Migrate`. A formal migrations baseline should be generated for each DbContext once the final SQL Server schema and school connection details are confirmed.
 
 ## Run both projects in Visual Studio
 
 1. Open `PokeMarket.sln` in Visual Studio 2026.
-2. Right-click the solution → **Properties** → **Startup Project**.
-3. Choose **Multiple startup projects** and set both `PokemonMvc` and `PokeMarketApi` to **Start**.
-4. Press F5. Stable local addresses are:
+2. Replace the placeholder SQL Server instance in both `appsettings.json` files, or provide the connection strings using environment-specific configuration.
+3. Ensure the SQL Server instance is reachable and the Windows account / SQL login has permission to create or access the three databases.
+4. Right-click the solution → **Properties** → **Startup Project**.
+5. Choose **Multiple startup projects** and set both `PokemonMvc` and `PokeMarketApi` to **Start**.
+6. Press F5. Stable local addresses are:
    - Catalogue: `http://localhost:5165` (HTTPS also available on 7165)
    - Marketplace: `https://localhost:7265` (HTTP also available on 5265)
-5. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this URL from `PokeMarketApi/appsettings.json`.
+7. Test the catalogue endpoint at `http://localhost:5165/api/catalog/cards`. The marketplace reads this URL from `PokeMarketApi/appsettings.json`.
 
 ## Create the catalogue administrator
 
@@ -51,7 +76,3 @@ Restart PokemonMvc after setting them. The app creates that account and assigns 
 - Community listings are demonstrations only; no payments, checkout, escrow, shipping or settlement are processed.
 - PSA grade labels are user-entered information and are not verified by PSA or another grading service.
 - The community directory uses local demo accounts. Add privacy, moderation and abuse controls before any public deployment.
-
-## Local database note
-
-PokemonMvc stores catalogue cards in `pokemonmvc.db` and admin accounts in `pokemonmvc-auth.db`. PokeMarketApi stores marketplace accounts, portfolio items, seller listings, favourites, reviews, price snapshots and messages in `pokemarket.db`. The two apps do not share a database. Startup compatibility checks add new marketplace columns/tables to older local SQLite databases. Back up your databases before manual schema changes or resets; do not delete them if you have data you need.
