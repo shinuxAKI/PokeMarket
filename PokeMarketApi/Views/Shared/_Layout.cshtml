@@ -23,6 +23,7 @@
         </label>
         @if (User.Identity?.IsAuthenticated == true)
         {
+            <a class="profile-link" href="/ApiRequest">API Access</a>
             <a class="profile-link" href="/Profile">◎ Profile</a>
             <form class="logout-form" method="post" action="/Identity/Account/Logout?returnUrl=%2F">
                 @Html.AntiForgeryToken()
@@ -31,6 +32,7 @@
         }
         else
         {
+            <a class="profile-link" href="/ApiRequest">API Access</a>
             <a class="profile-link" href="/Identity/Account/Login">Sign in</a>
         }
     </div>
