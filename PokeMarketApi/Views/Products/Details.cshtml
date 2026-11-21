@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = Model.Name;
     var reviews = ViewBag.Reviews as IEnumerable<ProductReview> ?? Enumerable.Empty<ProductReview>();
+    var userReview = ViewBag.UserReview as ProductReview;
     var history = ViewBag.PriceHistory as IEnumerable<PriceSnapshot> ?? Enumerable.Empty<PriceSnapshot>();
     double? average = ViewBag.AverageRating as double?;
     var maxPrice = Math.Max(1m, history.Any() ? history.Max(x => x.PriceQar) : 1m);
@@ -50,14 +51,15 @@
     </div>
 </section>
 <section id="reviews" class="reviews-section">
+    @if (TempData["ReviewMessage"] is string reviewMessage) { <p class="notice" role="status">@reviewMessage</p> }
     <div class="sectionhead"><div><p class="eyebrow">COLLECTOR FEEDBACK</p><h2>Reviews</h2></div></div>
     @if (User.Identity?.IsAuthenticated == true)
     {
         <form method="post" action="/Reviews/Add" class="review-form">
             @Html.AntiForgeryToken()<input type="hidden" name="catalogCardId" value="@Model.Id">
-            <label>Your rating <select name="rating"><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select></label>
-            <label>Your review <textarea name="comment" maxlength="800" rows="3" required placeholder="Share your thoughts about this product..."></textarea></label>
-            <button class="btn">Post / update review</button>
+            <label>Your rating <select name="rating"><option value="5" selected="@(userReview?.Rating == 5)">5 stars</option><option value="4" selected="@(userReview?.Rating == 4)">4 stars</option><option value="3" selected="@(userReview?.Rating == 3)">3 stars</option><option value="2" selected="@(userReview?.Rating == 2)">2 stars</option><option value="1" selected="@(userReview?.Rating == 1)">1 star</option></select></label>
+            <label>Your review <textarea name="comment" maxlength="800" rows="3" required placeholder="Share your thoughts about this product...">@userReview?.Comment</textarea></label>
+            <button class="btn">@(userReview == null ? "Post review" : "Update your review")</button>
         </form>
     }
     else { <p class="notice"><a href="/Identity/Account/Login">Sign in</a> to leave a review.</p> }
