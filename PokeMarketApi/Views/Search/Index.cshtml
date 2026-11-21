@@ -19,6 +19,7 @@
         <strong data-qar="@c.MarketPriceQar">QAR @c.MarketPriceQar.ToString("N2")</strong>
         <form method="post" action="/Favourites/Toggle">@Html.AntiForgeryToken()
             <input type="hidden" name="catalogCardId" value="@c.Id"><input type="hidden" name="productName" value="@c.Name"><input type="hidden" name="imageUrl" value="@c.ImageUrl"><input type="hidden" name="setName" value="@c.SetName"><input type="hidden" name="priceQar" value="@c.MarketPriceQar">
+            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)">
             <button class="linkbtn">♡ Save favourite</button>
         </form>
     </article>
