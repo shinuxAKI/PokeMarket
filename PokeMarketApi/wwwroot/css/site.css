@@ -104,3 +104,24 @@ main .account-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .api-result pre{overflow-x:auto;padding:14px;background:#292642;color:#f5f2fb;border-radius:10px}
 .api-result pre code{color:inherit}
 @media(max-width:600px){.api-request-page{padding:22px 16px}.credential-row{align-items:stretch;flex-direction:column}.copy-button{align-self:flex-start}}
+
+
+/* API request approval, credential management and admin review */
+.api-notice{margin:18px 0;padding:13px 16px;border:1px solid #c9e7da;border-radius:12px;background:#effaf5;color:#24634d;font-weight:700;font-size:13px}
+.api-user-request,.api-admin-card{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.api-admin-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.api-admin-heading h2,.api-admin-heading h3{margin:0 0 5px}
+.api-admin-heading small{color:var(--muted);font-size:11px}
+.api-status{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#eeeaf7;color:#5b4b9d;font-size:11px;font-weight:900;text-transform:uppercase;white-space:nowrap}
+.status-pending{background:#fff3d9;color:#8b641b}
+.status-approved{background:#e6f6ee;color:#24704e}
+.status-rejected,.status-revoked{background:#fce9ed;color:#9c3e54}
+.api-admin-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
+.api-admin-actions form{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0}
+.api-admin-actions input[type=text]{min-width:220px}
+.api-admin-actions .api-danger-button{background:#f8e8ed;color:#9c3e54;border:1px solid #edcbd5}
+.api-admin-actions .api-danger-button:hover{background:#9c3e54;color:white}
+.api-request-divider{height:1px;background:var(--line);margin:30px 0}
+.api-admin-page{max-width:920px}
+.api-admin-card p,.api-user-request p{overflow-wrap:anywhere}
+@media(max-width:560px){.api-admin-heading{flex-direction:column}.api-admin-actions,.api-admin-actions form{width:100%}.api-admin-actions input[type=text]{width:100%;min-width:0}}
