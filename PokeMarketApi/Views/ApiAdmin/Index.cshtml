@@ -1,0 +1,64 @@
+@model IReadOnlyList<PokeMarketApi.Models.ApiClientRegistration>
+@{
+    ViewData["Title"] = "API access administration";
+}
+<section class="api-request-page api-admin-page">
+    <div class="eyebrow">POKÉMARKET ADMINISTRATION</div>
+    <h1>API access requests</h1>
+    <p>Review requests before issuing access. Approved users can view their API URL and key from their own API Access page.</p>
+    @if (TempData["ApiAdminMessage"] is string message)
+    {
+        <div class="api-notice">@message</div>
+    }
+    <div class="api-admin-list">
+    @if (Model.Count == 0)
+    {
+        <p>No API access requests have been submitted yet.</p>
+    }
+    @foreach (var request in Model)
+    {
+        <article class="api-admin-card">
+            <div class="api-admin-heading">
+                <div><h2>@request.ApplicationName</h2><small>@request.ContactEmail · Submitted @request.CreatedAt.ToLocalTime().ToString("g")</small></div>
+                <span class="api-status status-@request.Status.ToLowerInvariant()">@request.Status</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(request.Website))
+            {
+                <p><strong>Website:</strong> <a href="@request.Website" target="_blank" rel="noopener noreferrer">@request.Website</a></p>
+            }
+            <p><strong>Purpose:</strong> @request.Purpose</p>
+            @if (!string.IsNullOrWhiteSpace(request.AdminNotes))
+            {
+                <p><strong>Previous admin note:</strong> @request.AdminNotes</p>
+            }
+            <div class="api-admin-actions">
+                @if (request.Status == "Pending" || request.Status == "Rejected")
+                {
+                    <form asp-action="Approve" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@request.Id" />
+                        <button type="submit">Approve and issue key</button>
+                    </form>
+                }
+                @if (request.Status == "Pending")
+                {
+                    <form asp-action="Reject" method="post" class="api-reject-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@request.Id" />
+                        <input type="text" name="adminNotes" maxlength="500" placeholder="Reason (optional)" aria-label="Reason for rejection" />
+                        <button type="submit" class="api-danger-button">Reject</button>
+                    </form>
+                }
+                @if (request.Status == "Approved")
+                {
+                    <form asp-action="Revoke" method="post" onsubmit="return confirm('Revoke this API key? Existing requests using it will stop working.');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@request.Id" />
+                        <button type="submit" class="api-danger-button">Revoke key</button>
+                    </form>
+                }
+            </div>
+        </article>
+    }
+    </div>
+</section>

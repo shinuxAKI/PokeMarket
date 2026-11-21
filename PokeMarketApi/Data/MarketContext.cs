@@ -13,4 +13,5 @@ public class MarketContext(DbContextOptions<MarketContext> o) : IdentityDbContex
     public DbSet<FavouriteItem> FavouriteItems => Set<FavouriteItem>();
     public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
     public DbSet<PriceSnapshot> PriceSnapshots => Set<PriceSnapshot>();
+    public DbSet<ApiClientRegistration> ApiClientRegistrations => Set<ApiClientRegistration>();
 }

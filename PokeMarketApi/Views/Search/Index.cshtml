@@ -17,10 +17,18 @@
     <article class="product">
         <a href="/Products/Details/@c.Id"><img src="@(c.ImageUrl ?? "https://placehold.co/240x330?text=Pok%C3%A9mon")" alt="@c.Name"><b>@c.Name</b><small>@c.CardNumber · @c.SetName · @c.Language</small></a>
         <strong data-qar="@c.MarketPriceQar">QAR @c.MarketPriceQar.ToString("N2")</strong>
-        <form method="post" action="/Favourites/Toggle">@Html.AntiForgeryToken()
-            <input type="hidden" name="catalogCardId" value="@c.Id"><input type="hidden" name="productName" value="@c.Name"><input type="hidden" name="imageUrl" value="@c.ImageUrl"><input type="hidden" name="setName" value="@c.SetName"><input type="hidden" name="priceQar" value="@c.MarketPriceQar">
-            <button class="linkbtn">♡ Save favourite</button>
-        </form>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <form method="post" action="/Favourites/Toggle">@Html.AntiForgeryToken()
+                <input type="hidden" name="catalogCardId" value="@c.Id"><input type="hidden" name="productName" value="@c.Name"><input type="hidden" name="imageUrl" value="@c.ImageUrl"><input type="hidden" name="setName" value="@c.SetName"><input type="hidden" name="priceQar" value="@c.MarketPriceQar">
+                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)">
+                <button class="linkbtn">♡ Save favourite</button>
+            </form>
+        }
+        else
+        {
+            <a class="linkbtn" href="/Identity/Account/Login?returnUrl=%2FSearch">Sign in to save</a>
+        }
     </article>
 }
 </div>

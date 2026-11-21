@@ -42,6 +42,9 @@ public class ProductsController(CatalogClient catalog, MarketContext db, UserMan
             .Select(x => (double?)x.Rating).AverageAsync();
         ViewBag.IsFavourite = User.Identity?.IsAuthenticated == true &&
             await db.FavouriteItems.AnyAsync(x => x.UserId == users.GetUserId(User) && x.CatalogCardId == id);
+        ViewBag.UserReview = User.Identity?.IsAuthenticated == true
+            ? await db.ProductReviews.FirstOrDefaultAsync(x => x.CatalogCardId == id && x.UserId == users.GetUserId(User))
+            : null;
         return View(card);
     }
 }
