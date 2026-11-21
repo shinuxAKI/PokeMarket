@@ -56,6 +56,16 @@ using (var scope = app.Services.CreateScope())
     var db = services.GetRequiredService<MarketContext>();
     db.Database.EnsureCreated();
 
+    db.Database.ExecuteSqlRaw("""
+        CREATE TABLE IF NOT EXISTS ApiClientRegistrations (
+            Id INTEGER NOT NULL CONSTRAINT PK_ApiClientRegistrations PRIMARY KEY AUTOINCREMENT,
+            UserId TEXT NOT NULL, ApplicationName TEXT NOT NULL, ContactEmail TEXT NOT NULL,
+            Website TEXT NULL, Purpose TEXT NOT NULL, KeyHash TEXT NOT NULL,
+            ProtectedKey TEXT NULL, Status TEXT NOT NULL DEFAULT 'Approved', CreatedAt TEXT NOT NULL,
+            ReviewedAt TEXT NULL, ReviewedBy TEXT NULL, AdminNotes TEXT NULL
+        );
+        """);
+
     await EnsureColumn(db, "PortfolioItems", "Quantity", "INTEGER NOT NULL DEFAULT 1");
     await EnsureColumn(db, "PortfolioItems", "Condition", "TEXT NOT NULL DEFAULT 'Near Mint'");
     await EnsureColumn(db, "SellerListings", "Condition", "TEXT NOT NULL DEFAULT 'Near Mint'");
