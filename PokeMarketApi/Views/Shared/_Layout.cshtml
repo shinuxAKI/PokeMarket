@@ -24,6 +24,10 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a class="profile-link" href="/ApiRequest">API Access</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="profile-link" href="/ApiAdmin">API Requests</a>
+            }
             <a class="profile-link" href="/Profile">◎ Profile</a>
             <form class="logout-form" method="post" action="/Identity/Account/Logout?returnUrl=%2F">
                 @Html.AntiForgeryToken()
