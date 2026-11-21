@@ -18,6 +18,7 @@
             <input type="hidden" name="catalogCardId" value="@Model.Id"><input type="hidden" name="productName" value="@Model.Name">
             <input type="hidden" name="imageUrl" value="@Model.ImageUrl"><input type="hidden" name="setName" value="@Model.SetName">
             <input type="hidden" name="priceQar" value="@Model.MarketPriceQar">
+            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)">
             @if (User.Identity?.IsAuthenticated == true) { <button class="btn" type="submit">@(ViewBag.IsFavourite == true ? "Remove from wishlist" : "♡ Add to wishlist")</button> }
             else { <a class="btn" href="/Identity/Account/Login">Sign in to save</a> }
         </form>
