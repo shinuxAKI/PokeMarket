@@ -17,18 +17,41 @@ public class FavouritesController(MarketContext db, UserManager<IdentityUser> us
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Toggle(int catalogCardId, string productName, string? imageUrl, string? setName, decimal priceQar)
+    public async Task<IActionResult> Toggle(
+        int catalogCardId,
+        string productName,
+        string? imageUrl,
+        string? setName,
+        decimal priceQar,
+        string? returnUrl)
     {
         var userId = users.GetUserId(User)!;
-        var existing = await db.FavouriteItems.FirstOrDefaultAsync(x => x.UserId == userId && x.CatalogCardId == catalogCardId);
-        if (existing != null) db.FavouriteItems.Remove(existing);
-        else db.FavouriteItems.Add(new FavouriteItem
+        var existing = await db.FavouriteItems.FirstOrDefaultAsync(
+            x => x.UserId == userId && x.CatalogCardId == catalogCardId);
+
+        if (existing != null)
         {
-            UserId = userId, CatalogCardId = catalogCardId, ProductName = productName,
-            ImageUrl = imageUrl, SetName = setName, PriceQar = priceQar
-        });
+            db.FavouriteItems.Remove(existing);
+        }
+        else
+        {
+            db.FavouriteItems.Add(new FavouriteItem
+            {
+                UserId = userId,
+                CatalogCardId = catalogCardId,
+                ProductName = productName,
+                ImageUrl = imageUrl,
+                SetName = setName,
+                PriceQar = priceQar
+            });
+        }
+
         await db.SaveChangesAsync();
-        return Redirect(Request.Headers["Referer"].ToString().Contains("/Search", StringComparison.OrdinalIgnoreCase)
-            ? "/Search" : "/Favourites");
+
+        // Only redirect to local paths supplied by the app; never trust an external return URL.
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return LocalRedirect(returnUrl);
+
+        return RedirectToAction(nameof(Index));
     }
 }
