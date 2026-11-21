@@ -3,36 +3,49 @@ using Microsoft.EntityFrameworkCore;
 using PokemonMvc.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
 builder.Services.AddDbContext<PokemonContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("PokemonContext")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("PokemonContext")));
+
 builder.Services.AddDbContext<CatalogueIdentityContext>(options =>
-    options.UseSqlite("Data Source=pokemonmvc-auth.db"));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("CatalogueIdentityDb")));
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
-}).AddRoles<IdentityRole>().AddEntityFrameworkStores<CatalogueIdentityContext>();
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<CatalogueIdentityContext>();
 
 var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     var cardsDb = services.GetRequiredService<PokemonContext>();
-    cardsDb.Database.EnsureCreated();
+    await cardsDb.Database.EnsureCreatedAsync();
     SeedData.Initialize(cardsDb);
 
     var identityDb = services.GetRequiredService<CatalogueIdentityContext>();
-    identityDb.Database.EnsureCreated();
+    await identityDb.Database.EnsureCreatedAsync();
 
     // Development-only fallback credentials make a fresh local checkout usable.
     // Environment variables override these values when configured.
     if (app.Environment.IsDevelopment())
     {
-        var email = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_EMAIL") ?? "admin@pokedex.com";
-        var password = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_PASSWORD") ?? "PokedexAdmin123!";
+        var email = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_EMAIL")
+            ?? "admin@pokedex.com";
+        var password = Environment.GetEnvironmentVariable("POKEMARKET_ADMIN_PASSWORD")
+            ?? "PokedexAdmin123!";
+
         var roles = services.GetRequiredService<RoleManager<IdentityRole>>();
         var users = services.GetRequiredService<UserManager<IdentityUser>>();
 
@@ -42,7 +55,13 @@ using (var scope = app.Services.CreateScope())
         var admin = await users.FindByEmailAsync(email);
         if (admin == null)
         {
-            admin = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
+            admin = new IdentityUser
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true
+            };
+
             var result = await users.CreateAsync(admin, password);
             if (result.Succeeded)
                 await users.AddToRoleAsync(admin, "Admin");
@@ -60,11 +79,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapRazorPages();
 app.MapControllers();
-app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.Run();
