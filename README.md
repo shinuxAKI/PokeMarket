@@ -34,6 +34,10 @@ Restart PokemonMvc after setting them. The app creates that account and assigns 
 - Admin dashboard with catalogue counts, product mix, estimated catalogue value, top sets and recently added products.
 
 ### PokeMarketApi marketplace
+- API access request workflow with pending, approved, rejected and revoked states.
+- Admin-only API request review, key issuance and key revocation.
+- User API key display, rotation and self-service revocation; keys are hashed for validation and protected at rest for owner retrieval.
+- Public API key validation and a fixed-window limit of 60 requests per minute per application instance.
 - User registration and sign-in.
 - Browse, search, filter, sort and paginate catalogue products.
 - Private collection tracker with quantity, card condition and PSA grade.
@@ -43,6 +47,21 @@ Restart PokemonMvc after setting them. The app creates that account and assigns 
 - Product price-history chart using clearly labelled illustrative demo snapshots.
 - Registered-member community and private messages.
 - Currency display conversion when the external exchange-rate service is reachable.
+
+## Configure the marketplace administrator
+
+The marketplace API administrator is separate from the catalogue administrator because the two applications use separate Identity databases. In Visual Studio, right-click **PokeMarketApi** → **Manage User Secrets** and add:
+
+```json
+{
+  "Admin": {
+    "Email": "your-admin-email@example.com",
+    "Password": "Choose-A-Strong-Password-123!"
+  }
+}
+```
+
+Restart PokeMarketApi. It creates the `Admin` role and assigns it to that account. Do not commit these credentials. If these settings are omitted, no marketplace API administrator is seeded and API requests cannot be reviewed until an administrator is configured.
 
 ## Demo limitations
 
