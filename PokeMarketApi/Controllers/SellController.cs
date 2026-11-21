@@ -10,6 +10,7 @@ namespace PokeMarketApi.Controllers;
 [Authorize]
 public class SellController(MarketContext db, UserManager<IdentityUser> users, IWebHostEnvironment environment) : Controller
 {
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         ViewBag.CurrentUserId = users.GetUserId(User);
