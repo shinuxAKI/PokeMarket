@@ -19,8 +19,22 @@ public class ApiRequestViewModel
     [Required, StringLength(1000, MinimumLength = 20)]
     [Display(Name = "How will you use the PokéMarket API?")]
     public string Purpose { get; set; } = "";
+}
 
-    public string? ApiUrl { get; set; }
+public class ApiRequestPageViewModel
+{
+    public ApiRequestViewModel Form { get; set; } = new();
+    public List<ApiRequestStatusViewModel> Requests { get; set; } = [];
+    public string ApiUrl { get; set; } = "";
+}
+
+public class ApiRequestStatusViewModel
+{
+    public int Id { get; set; }
+    public string ApplicationName { get; set; } = "";
+    public string Status { get; set; } = "";
+    public DateTime CreatedAt { get; set; }
+    public string? AdminNotes { get; set; }
     public string? ApiKey { get; set; }
-    public bool Submitted { get; set; }
+    public bool NeedsKeyRotation { get; set; }
 }
